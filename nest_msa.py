@@ -35,6 +35,52 @@ def pretty_print_matrix(matrix):
                 print(" ", end="")
         print("")
 
+def weight(row, w1=0.25, w2=0.5, w3=1.0):
+    if full_row(row):
+        return w3
+
+    row_length = len(row)
+    max = most_frequent(row)[0]
+
+    if aligned(row):
+        return w2 * max / row_length
+
+    x = 0 if max <= 1 else max
+    return w1 * x / row_length
+
+function objective(M, rowindex; endindex=0)
+  weights = sum(weight.(eachrow(M[rowindex:end, :])))
+  C = mostfrequent(M[rowindex, :])[1];
+  A = sum(aligned.(eachrow(M))[rowindex:end])
+
+  endindex = endindex == 0 ? size(M)[1] : endindex;
+  if endindex > size(M)[1]
+    throw(ArgumentError("endindex exceeds the matrix size"));
+    end
+
+  counts = countmap(M[rowindex:endindex, :]);
+  Gaps = get(counts, '-', 0);
+
+  return weights * (A * C) / (1 + Gaps)
+end
+
+def objective(M, row_index, end_index=-1):
+    weights = float(sum([weight(row) for row in M[row_index :]]))
+    C = most_frequent(M[row_index])[0]
+    A = sum([aligned(row) for row in M[row_index:]])
+
+    end_index = len(M)-1 if end_index == -1 else end_index
+
+    if end_index >= len(M):
+        raise RuntimeError("End index exceeds matrix size")
+
+    gaps = 0
+    for row in M[row_index:end_index+1]:
+        gaps += row.count('-')
+
+    return weights * (A * C) / (1 + Gaps)
+
+
 def full_row(row):
     return len(set(row)) == 1 and set(row) != {'-'}
 
