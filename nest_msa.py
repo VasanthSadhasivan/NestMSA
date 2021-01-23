@@ -2,6 +2,39 @@ import copy
 from particle import  Particle
 from collections import defaultdict
 
+# Example
+# python> print(create_peer_matrix(["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]))
+# [['a', 'a', 'a', 'a'], ['b', 'c', 'b', 'b'], ['c', 'b', 'c', 'c'], ['b', 'c', 'h', 'b'], ['c', 'f', 'i', 'c'], ['d', 'g', 'm', 'j'], ['e', None, 'n', 'k'], ['m', None, None, 'm']]
+def create_peer_matrix(list_of_strings):
+    number_of_columns = len(list_of_strings)
+    number_of_rows = max(len(string) for string in list_of_strings)
+    matrix = [[None for c in range(number_of_columns)] for r in range(number_of_rows)]
+    for column_index in range(number_of_columns):
+        for row_index in range(len(list_of_strings[column_index])):
+            matrix[row_index][column_index] = list_of_strings[column_index][row_index]
+    return matrix
+
+# Example
+# python> pretty_print_matrix(create_peer_matrix(["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]))
+# a a a a
+# b c b b
+# c b c c
+# b c h b
+# c f i c
+# d g m j
+# e - n k
+# m - - m
+def pretty_print_matrix(matrix):
+    for row in matrix:
+        for i in range(len(row)):
+            if row[i] is None:
+                print("-", end="")
+            else:
+                print(row[i], end="")
+            if i != (len(row) - 1):
+                print(" ", end="")
+        print("")
+
 def full_row(row):
     return len(set(row)) == 1 and set(row) != {'-'}
 
