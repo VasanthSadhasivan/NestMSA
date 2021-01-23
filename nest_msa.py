@@ -48,22 +48,6 @@ def weight(row, w1=0.25, w2=0.5, w3=1.0):
     x = 0 if max <= 1 else max
     return w1 * x / row_length
 
-function objective(M, rowindex; endindex=0)
-  weights = sum(weight.(eachrow(M[rowindex:end, :])))
-  C = mostfrequent(M[rowindex, :])[1];
-  A = sum(aligned.(eachrow(M))[rowindex:end])
-
-  endindex = endindex == 0 ? size(M)[1] : endindex;
-  if endindex > size(M)[1]
-    throw(ArgumentError("endindex exceeds the matrix size"));
-    end
-
-  counts = countmap(M[rowindex:endindex, :]);
-  Gaps = get(counts, '-', 0);
-
-  return weights * (A * C) / (1 + Gaps)
-end
-
 def objective(M, row_index, end_index=-1):
     weights = float(sum([weight(row) for row in M[row_index :]]))
     C = most_frequent(M[row_index])[0]
