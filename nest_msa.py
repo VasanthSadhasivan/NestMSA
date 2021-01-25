@@ -24,7 +24,7 @@ def create_peer_matrix(list_of_strings):
 # d g m j
 # e - n k
 # m - - m
-def pretty_print_matrix(matrix):
+def pretty_print_matrix(matrix):  # Note that this prints None as a '-'
     for row in matrix:
         for i in range(len(row)):
             if row[i] is None:
