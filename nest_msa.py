@@ -60,19 +60,19 @@ def objective(M, row_index, end_index=-1):
 
     gaps = 0
     for row in M[row_index:end_index+1]:
-        gaps += row.count('-')
+        gaps += row.count(None)
 
     return weights * (A * C) / (1 + gaps)
 
 
 def full_row(row):
-    return len(set(row)) == 1 and set(row) != {'-'}
+    return len(set(row)) == 1 and set(row) != {None}
 
 def remove_missing_rows(M):
     M_new = []
 
     for i, row in enumerate(M):
-        if set(row) != {'-'}:
+        if set(row) != {None}:
             M_new.append(row)
     return M_new
 
@@ -100,7 +100,7 @@ def mostfrequent(row):
     return (freq, val)  
 
 def fly_down(particle, M, stride = 1):
-    M = M + [['-' for i in M[0]] for j in range(stride)]
+    M = M + [[None for i in M[0]] for j in range(stride)]
 
     for row_to_edit in range(len(M)-1, len(M)-1-stride ):
         for col_to_edit in range(len(M[0])):
