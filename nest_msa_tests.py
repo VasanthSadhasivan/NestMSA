@@ -30,6 +30,19 @@ class NestMSATestCase(unittest.TestCase):
                           ['c', None, 'f']]
         self.assertEqual(nest_msa.create_peer_matrix(sequences), correct_output)
 
+    def test_create_peer_matrix_3(self):
+        sequences = ["a-bcbcdem", "acbcfg", "a-bchimn", "a-bcbcjkm"]
+        correct_output = [['a', 'a', 'a', 'a'],
+                          ['-', 'c', '-', '-'],
+                          ['b', 'b', 'b', 'b'],
+                          ['c', 'c', 'c', 'c'],
+                          ['b', 'f', 'h', 'b'],
+                          ['c', 'g', 'i', 'c'],
+                          ['d', None, 'm', 'j'],
+                          ['e', None, 'n', 'k'],
+                          ['m', None, None, 'm']]
+        self.assertEqual(nest_msa.create_peer_matrix(sequences), correct_output)
+
     def test_weight_0(self):
         sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
         matrix = nest_msa.create_peer_matrix(sequences)
@@ -44,6 +57,16 @@ class NestMSATestCase(unittest.TestCase):
         sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
         matrix = nest_msa.create_peer_matrix(sequences)
         self.assertEqual(nest_msa.objective(matrix, 1), 2.625)
+
+    def test_objective_1(self):
+        sequences = ["a-bcbcdem", "acbcfg", "a-bchimn", "a-bcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.objective(matrix, 1), 2.625)
+
+    def test_objective_2(self):
+        sequences = ["abcbcdem", "a-cbcfg", "abc--himn", "abcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.objective(matrix, 3), 5.0)
 
     def test_mostfrequent_0(self):
         sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
