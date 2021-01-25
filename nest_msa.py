@@ -1,5 +1,5 @@
 import copy
-from particle import  Particle
+from particle import Particle
 from collections import defaultdict
 
 # Example
@@ -40,7 +40,7 @@ def weight(row, w1=0.25, w2=0.5, w3=1.0):
         return w3
 
     row_length = len(row)
-    max = most_frequent(row)[0]
+    max = mostfrequent(row)[0]
 
     if aligned(row):
         return w2 * max / row_length
@@ -50,7 +50,7 @@ def weight(row, w1=0.25, w2=0.5, w3=1.0):
 
 def objective(M, row_index, end_index=-1):
     weights = float(sum([weight(row) for row in M[row_index :]]))
-    C = most_frequent(M[row_index])[0]
+    C = mostfrequent(M[row_index])[0]
     A = sum([aligned(row) for row in M[row_index:]])
 
     end_index = len(M)-1 if end_index == -1 else end_index
@@ -62,7 +62,7 @@ def objective(M, row_index, end_index=-1):
     for row in M[row_index:end_index+1]:
         gaps += row.count('-')
 
-    return weights * (A * C) / (1 + Gaps)
+    return weights * (A * C) / (1 + gaps)
 
 
 def full_row(row):
@@ -140,7 +140,7 @@ def stopcriteria(p, newindex, M, threshold=5, debug=False):
    c3 = criteria3(p, newindex, M)
    if (debug and c2):
       print("Terminating because of criteria 2")
-   elif (debug and c3)
+   elif (debug and c3):
       print("Terminating because of criteria 3")
    return (c2 and c3)
 
@@ -162,11 +162,11 @@ def row_alignment(index, M):
 
         particle.best_value = objective(M, index, endindex=index_copy)
 
-        missing_p = set(range(len(M_copy[0]))) - set(p.pos.indexes)
+        missing_p = set(range(len(M_copy[0]))) - set(particle.pos.indexes)
         max_len = max([len(set(column(M, missinc_col)) - {'_'}) for missinc_col in missing_p])
         criteria_1 = max_len
 
-        while not(stop_criteria(particle, index_copy, M_copy)) and index_copy < criteria_1:
+        while not(stopcriteria(particle, index_copy, M_copy)) and index_copy < criteria_1:
             index_copy += 1
             particle.updated += 1
 
@@ -181,7 +181,7 @@ def row_alignment(index, M):
             if score > g_value:
                 g_value = score
                 g = copy.deepcopy(particle)
-                g.best = get_position(p.value, index_copy, M_copy)
+                g.best = getposition(particle.value, index_copy, M_copy)
                 g.best_value = score
 
     if g_value == original_g_value:
