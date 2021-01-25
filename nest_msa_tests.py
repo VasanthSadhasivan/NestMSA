@@ -13,8 +13,7 @@ class NestMSATestCase(unittest.TestCase):
                           ['d', 'g', 'm', 'j'],
                           ['e', None, 'n', 'k'],
                           ['m', None, None, 'm']]
-        matrix = nest_msa.create_peer_matrix(sequences)
-        self.assertEqual(matrix, correct_output)
+        self.assertEqual(nest_msa.create_peer_matrix(sequences), correct_output)
 
     def test_create_peer_matrix_2(self):
         sequences = ["abbc", "abcd", "bbcd", "cddd", "ddde"]
@@ -22,22 +21,14 @@ class NestMSATestCase(unittest.TestCase):
                           ['b', 'b', 'b', 'd', 'd'],
                           ['b', 'c', 'c', 'd', 'd'],
                           ['c', 'd', 'd', 'd', 'e']]
-        matrix = nest_msa.create_peer_matrix(sequences)
-        self.assertEqual(matrix, correct_output)
+        self.assertEqual(nest_msa.create_peer_matrix(sequences), correct_output)
 
     def test_create_peer_matrix_3(self):
         sequences = ["abc", "", "def"]
         correct_output = [['a', None, 'd'],
                           ['b', None, 'e'],
                           ['c', None, 'f']]
-        matrix = nest_msa.create_peer_matrix(sequences)
-        self.assertEqual(matrix, correct_output)
-
-    def test_create_peer_matrix_4(self):
-        sequences = ["abc"]
-        incorrect_output = [['']]
-        matrix = nest_msa.create_peer_matrix(sequences)
-        self.assertNotEqual(matrix, incorrect_output)
+        self.assertEqual(nest_msa.create_peer_matrix(sequences), correct_output)
 
 
 if __name__ == '__main__':
