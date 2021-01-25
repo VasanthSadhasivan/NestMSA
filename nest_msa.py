@@ -76,6 +76,29 @@ def remove_missing_rows(M):
             M_new.append(row)
     return M_new
 
+def getposition(value, rowindex, matrix):
+    indices = []
+    row = matrix[rowindex - 1]
+    for i in range(len(row)):
+         if row[i] == value:
+                indices.append(i + 1)
+    return Particle(value,(rowindex, indices))
+
+
+def mostfrequent(row):
+    freq = 0
+    val = None
+    for item in row:
+        freqList = [[item.count(letters), letters] for letters in set(item)]
+        best = [0, None]
+        for each in freqList:
+            if each[0] > best[0]:
+                best = each
+        if best[0] > freq:
+            freq = best[0]
+            val = best[1]
+    return (freq, val)  
+
 def fly_down(particle, M, stride = 1):
     M = M + [['-' for i in M[0]] for j in range(stride)]
 
