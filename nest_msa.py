@@ -86,8 +86,8 @@ def getposition(value, rowindex, matrix):
     indices = []
     row = matrix[rowindex - 1]
     for i in range(len(row)):
-         if row[i] == value:
-                indices.append(i + 1)
+        if row[i] == value:
+            indices.append(i + 1)
     return Particle(value,(rowindex, indices))
 
 
@@ -140,21 +140,21 @@ def create_swarm(index, M):
 
 # Need to fix .indexes depending on what getposition returns
 def criteria3(p, newindex, M):
-   return len(p.pos[1]) != len(getposition(p.value, newindex, M).pos[1]) 
+    return len(p.pos[1]) != len(getposition(p.value, newindex, M).pos[1])
 
 
 def criteria2(p, threshold):
-   return p.updated > threshold
+    return p.updated > threshold
 
 
 def stopcriteria(p, newindex, M, threshold=5, debug=False):
-   c2 = criteria2(p, threshold)
-   c3 = criteria3(p, newindex, M)
-   if (debug and c2):
-      print("Terminating because of criteria 2")
-   elif (debug and c3):
-      print("Terminating because of criteria 3")
-   return (c2 and c3)
+    c2 = criteria2(p, threshold)
+    c3 = criteria3(p, newindex, M)
+    if (debug and c2):
+        print("Terminating because of criteria 2")
+    elif (debug and c3):
+        print("Terminating because of criteria 3")
+    return (c2 and c3)
 
 
 def row_alignment(index, M):
