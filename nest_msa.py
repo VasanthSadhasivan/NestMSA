@@ -44,9 +44,9 @@ def weight(row, w1=0.25, w2=0.5, w3=1.0):
 
     if aligned(row):
         return w2 * max / row_length
-
-    x = 0 if max <= 1 else max
-    return w1 * x / row_length
+    else:
+        x = 0 if max <= 1 else max
+        return w1 * x / row_length
 
 def objective(M, row_index, end_index=-1):
     weights = float(sum([weight(row) for row in M[row_index :]]))
@@ -86,18 +86,12 @@ def getposition(value, rowindex, matrix):
 
 
 def mostfrequent(row):
-    freq = 0
-    val = None
-    for item in row:
-        freqList = [[item.count(letters), letters] for letters in set(item)]
-        best = [0, None]
-        for each in freqList:
-            if each[0] > best[0]:
-                best = each
-        if best[0] > freq:
-            freq = best[0]
-            val = best[1]
-    return (freq, val)  
+    freqList = [[row.count(letter), letter] for letter in set(row)]
+    best = [0, None]
+    for each in freqList:
+        if each[0] > best[0]:
+            best = each
+    return (best[0], best[1])  
 
 def fly_down(particle, M, stride = 1):
     M = M + [[None for i in M[0]] for j in range(stride)]
@@ -113,7 +107,11 @@ def column(matrix, i):
     return [row[i] for row in matrix]
 
 def aligned(row):
-    return len(set(row)) == 1
+    row_as_set = set(row)
+    if (len(row_as_set) == 1) and (row_as_set != {None}):
+        return True
+    if (len(row_as_set) == 2) and (None in row_as_set):
+        return True
 
 def create_swarm(index, M):
     char_to_particles = defaultdict(lambda c: Particle(c, (index, [])))
