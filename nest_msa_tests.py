@@ -30,6 +30,16 @@ class NestMSATestCase(unittest.TestCase):
                           ['c', None, 'f']]
         self.assertEqual(nest_msa.create_peer_matrix(sequences), correct_output)
 
+    def test_weight_1(self):
+        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.weight(matrix[0]), 1.0)
+
+    def test_weight_2(self):
+        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.weight(matrix[1]), 0.1875)
+
 
 if __name__ == '__main__':
     unittest.main()
