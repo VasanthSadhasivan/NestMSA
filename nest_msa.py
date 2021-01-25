@@ -2,6 +2,7 @@ import copy
 from particle import Particle
 from collections import defaultdict
 
+
 # Example
 # python> print(create_peer_matrix(["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]))
 # [['a', 'a', 'a', 'a'], ['b', 'c', 'b', 'b'], ['c', 'b', 'c', 'c'], ['b', 'c', 'h', 'b'], ['c', 'f', 'i', 'c'], ['d', 'g', 'm', 'j'], ['e', None, 'n', 'k'], ['m', None, None, 'm']]
@@ -13,6 +14,7 @@ def create_peer_matrix(list_of_strings):
         for row_index in range(len(list_of_strings[column_index])):
             matrix[row_index][column_index] = list_of_strings[column_index][row_index]
     return matrix
+
 
 # Example
 # python> pretty_print_matrix(create_peer_matrix(["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]))
@@ -35,6 +37,7 @@ def pretty_print_matrix(matrix):  # Note that this prints None as a '-'
                 print(" ", end="")
         print("")
 
+
 def weight(row, w1=0.25, w2=0.5, w3=1.0):
     if full_row(row):
         return w3
@@ -48,8 +51,9 @@ def weight(row, w1=0.25, w2=0.5, w3=1.0):
         x = 0 if max <= 1 else max
         return w1 * x / row_length
 
+
 def objective(M, row_index, end_index=-1):
-    weights = float(sum([weight(row) for row in M[row_index :]]))
+    weights = float(sum([weight(row) for row in M[row_index:]]))
     C = mostfrequent(M[row_index])[0]
     A = sum([aligned(row) for row in M[row_index:]])
 
@@ -60,13 +64,14 @@ def objective(M, row_index, end_index=-1):
 
     gaps = 0
     for row in M[row_index:end_index+1]:
-        gaps += row.count(None)
+        gaps += row.count('-')
 
     return weights * (A * C) / (1 + gaps)
 
 
 def full_row(row):
     return len(set(row)) == 1 and set(row) != {None}
+
 
 def remove_missing_rows(M):
     M_new = []
@@ -75,6 +80,7 @@ def remove_missing_rows(M):
         if set(row) != {None}:
             M_new.append(row)
     return M_new
+
 
 def getposition(value, rowindex, matrix):
     indices = []
@@ -93,8 +99,9 @@ def mostfrequent(row):
             best = each
     return (best[0], best[1])  
 
+
 def fly_down(particle, M, stride = 1):
-    M = M + [[None for i in M[0]] for j in range(stride)]
+    M = M + [["-" for i in M[0]] for j in range(stride)]
 
     for row_to_edit in range(len(M)-1, len(M)-1-stride ):
         for col_to_edit in range(len(M[0])):
@@ -103,15 +110,19 @@ def fly_down(particle, M, stride = 1):
 
     return remove_missing_rows(M)
 
+
 def column(matrix, i):
     return [row[i] for row in matrix]
+
 
 def aligned(row):
     row_as_set = set(row)
     if (len(row_as_set) == 1) and (row_as_set != {None}):
         return True
-    if (len(row_as_set) == 2) and (None in row_as_set):
+    if (len(row_as_set) == 2) and (None in row_as_set or '-' in row_as_set):
         return True
+    return False
+
 
 def create_swarm(index, M):
     char_to_particles = defaultdict(lambda c: Particle(c, (index, [])))
@@ -126,12 +137,15 @@ def create_swarm(index, M):
 
     return swarm
 
+
 # Need to fix .indexes depending on what getposition returns
 def criteria3(p, newindex, M):
    return len(p.pos[1]) != len(getposition(p.value, newindex, M).pos[1]) 
 
+
 def criteria2(p, threshold):
    return p.updated > threshold
+
 
 def stopcriteria(p, newindex, M, threshold=5, debug=False):
    c2 = criteria2(p, threshold)
@@ -141,6 +155,7 @@ def stopcriteria(p, newindex, M, threshold=5, debug=False):
    elif (debug and c3):
       print("Terminating because of criteria 3")
    return (c2 and c3)
+
 
 def row_alignment(index, M):
     row = M[index]
@@ -194,4 +209,3 @@ def nest_msa_main(M):
         if globaly_optimal:
             M = fly_down(globaly_optimal, M, globaly_optimal.best.row - globaly_optimal.pos.row)
     return M
-
