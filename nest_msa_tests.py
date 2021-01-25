@@ -40,6 +40,21 @@ class NestMSATestCase(unittest.TestCase):
         matrix = nest_msa.create_peer_matrix(sequences)
         self.assertEqual(nest_msa.weight(matrix[1]), 0.1875)
 
+    def test_mostfrequent_1(self):
+        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.mostfrequent(matrix[1]), (3, 'b'))
+
+    def test_mostfrequent_2(self):
+        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.mostfrequent(matrix[2]), (3, 'c'))
+
+    def test_mostfrequent_3(self):
+        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.mostfrequent(matrix[3]), (2, 'b'))
+
 
 if __name__ == '__main__':
     unittest.main()
