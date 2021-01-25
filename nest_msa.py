@@ -190,7 +190,7 @@ def row_alignment(index, M):
     return g
 
 
-def net_msa_main(M):
+def nest_msa_main(M):
     for i in range(len(M)):
         globaly_optimal = row_alignment(i, M)
         if globaly_optimal:
