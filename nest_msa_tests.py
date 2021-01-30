@@ -1,6 +1,6 @@
 import unittest
 import nest_msa
-
+import particle
 
 class NestMSATestCase(unittest.TestCase):
     def test_create_peer_matrix_0(self):
@@ -88,6 +88,61 @@ class NestMSATestCase(unittest.TestCase):
         matrix = nest_msa.create_peer_matrix(sequences)
         self.assertEqual(nest_msa.mostfrequent(matrix[3]), (2, 'b'))
 
+    def test_full_row_1(self):
+        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.full_row(matrix[0]), True)
+    
+    def test_full_row_2(self):
+        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.full_row(matrix[1]), False)
+    
+    def test_full_row_3(self):
+        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.full_row(matrix[2]), False)
+
+    def test_full_row_4(self):
+        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.full_row(matrix[3]), False)
+
+    def test_remove_missing_rows_1(self):
+        sequences = ["abcbcde", "acbcfg", "abchimn", "abcbcjkm "]
+        matrix1 = nest_msa.create_peer_matrix(sequences)
+        sequences = ["abcbcde", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix2 = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.remove_missing_rows(matrix1), matrix2)
+
+    def test_remove_missing_rows_2(self):
+        sequences = ["abcbcde", "acbcfg", "abchimn", "abcbcjkm  "]
+        matrix1 = nest_msa.create_peer_matrix(sequences)
+        sequences = ["abcbcde", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix2 = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.remove_missing_rows(matrix1), matrix2)
+
+    def test_remove_missing_rows_3(self):
+        sequences = ["abcbcde", "acbcfg", "abchimn   ", "abcbcjkm  "]
+        matrix1 = nest_msa.create_peer_matrix(sequences)
+        sequences = ["abcbcde", "acbcfg", "abchimn ", "abcbcjkm"]
+        matrix2 = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual(nest_msa.remove_missing_rows(matrix1), matrix2)
+
+    def test_get_position_1(self):
+        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual((nest_msa.getposition('b', 2, matrix)).pos, (2, [1, 3, 4]))
+
+    def test_get_position_2(self):
+        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual((nest_msa.getposition('c', 2, matrix)).pos, (2, [2]))
+
+    def test_get_position_3(self):
+        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertEqual((nest_msa.getposition('b', 1, matrix)).pos, (1, []))
 
 if __name__ == '__main__':
     unittest.main()

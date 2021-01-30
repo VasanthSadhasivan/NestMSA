@@ -75,10 +75,16 @@ def full_row(row):
 
 def remove_missing_rows(M):
     M_new = []
-
+    skip = 0
     for i, row in enumerate(M):
-        if set(row) != {None}:
+        for each in row:
+            if each == ' ' or each == '-':
+                skip = 1
+            else:
+                skip = 0
+        if set(row) != {None} and skip == 0:
             M_new.append(row)
+        skip = 0
     return M_new
 
 
