@@ -59,14 +59,19 @@ class NestMSATestCase(unittest.TestCase):
         self.assertEqual(nest_msa.objective(matrix, 1), 2.625)
 
     def test_objective_1(self):
-        sequences = ["a-bcbcdem", "acbcfg", "a-bchimn", "a-bcbcjkm"]
+        sequences = ["abcdef", "aaccee", "bbddff", "abaded", "abccdd", "abcdefg"]
         matrix = nest_msa.create_peer_matrix(sequences)
-        self.assertEqual(nest_msa.objective(matrix, 1), 2.625)
+        self.assertEqual(nest_msa.objective(matrix, 1), 6.25)
 
     def test_objective_2(self):
-        sequences = ["abcbcdem", "a-cbcfg", "abc--himn", "abcbcjkm"]
+        sequences = ["The quick brown fox jumped over the lazy dog", "The quick brn fox jumed oer te laxy dogg", "Thje quicc brownn foxy jnmped oevr the lazzy do"]
         matrix = nest_msa.create_peer_matrix(sequences)
-        self.assertEqual(nest_msa.objective(matrix, 3), 5.0)
+        self.assertAlmostEqual(nest_msa.objective(matrix, 10), 11.0)
+
+    def test_objective_3(self):
+        sequences = ["The quick brown fox jumped over the lazy dog", "The quick brn fox jumed oer te laxy dogg", "Thje quicc brownn foxy jnmped oevr the lazzy do"]
+        matrix = nest_msa.create_peer_matrix(sequences)
+        self.assertAlmostEqual(nest_msa.objective(matrix, 34), 3.5)
 
     def test_mostfrequent_0(self):
         sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
