@@ -28,13 +28,11 @@ def create_peer_matrix(list_of_strings):
 def pretty_print_matrix(matrix):  # Note that this prints None as a '-'
     for row in matrix:
         for i in range(len(row)):
-            if row[i] is None:
-                print("-", end="")
-            else:
-                print(row[i], end="")
+            print(row[i], end="")
             if i != (len(row) - 1):
                 print(" ", end="")
         print("")
+    print("")
 
 
 def weight(row, w1=0.25, w2=0.5, w3=1.0):
@@ -69,14 +67,17 @@ def objective(M, row_index, end_index=-1):
 
 
 def full_row(row):
-    return len(set(row)) == 1 and set(row) != {None}
+    return len(set(row)) == 1 and (set(row) != {None} or set(row) != {'-'})
 
 
 def remove_missing_rows(M):
     M_new = []
-
     for i, row in enumerate(M):
-        if set(row) != {None}:
+        skip = 1
+        for each in row:
+            if each != ' ' and each != '-' and each is not None:
+                skip = 0
+        if skip == 0:
             M_new.append(row)
     return M_new
 
@@ -99,14 +100,17 @@ def mostfrequent(row):
 
 
 def fly_down(particle, M, stride = 1):
-    M = M + [["-" for i in M[0]] for j in range(stride)]
+    M_new = copy.deepcopy(M) + [[None for _ in copy.deepcopy(M)[0]] for j in range(stride)]
 
-    for row_to_edit in range(len(M)-1, len(M)-1-stride ):
-        for col_to_edit in range(len(M[0])):
+    for row_to_edit in range(len(M_new)-1, particle.pos[0], -1):
+        for col_to_edit in range(len(M_new[0])):
             if col_to_edit in particle.pos[1]:
-                M[row_to_edit][col_to_edit] = M[row_to_edit - stride][col_to_edit]
+                M_new[row_to_edit][col_to_edit] = M_new[row_to_edit - stride][col_to_edit]
 
-    return remove_missing_rows(M)
+    for col in particle.pos[1]:
+        for row in range(stride):
+            M_new[particle.pos[0] + row][col] = '-'
+    return remove_missing_rows(M_new)
 
 
 def column(matrix, i):
@@ -115,7 +119,7 @@ def column(matrix, i):
 
 def aligned(row):
     row_as_set = set(row)
-    if (len(row_as_set) == 1) and (row_as_set != {None}):
+    if (len(row_as_set) == 1) and (row_as_set != {None} or row_as_set != {'-'}):
         return True
     if (len(row_as_set) == 2) and (None in row_as_set or '-' in row_as_set):
         return True
@@ -123,9 +127,13 @@ def aligned(row):
 
 
 def create_swarm(index, M):
-    char_to_particles = defaultdict(lambda c: Particle(c, (index, [])))
+    char_to_particles = {}
 
     for i, character in enumerate(M[index]):
+        if character is None:
+            continue
+        if character not in char_to_particles:
+            char_to_particles[character] = Particle(character, (index, []))
         char_to_particles[character].pos[1].append(i)
 
     swarm = []
