@@ -161,13 +161,13 @@ class NestMSATestCase(unittest.TestCase):
             ['c', 'd', 'd', 'd', 'e']]
         self.assertEqual(nest_msa.row_alignment(1, M), None)
 
-    def test_row_alignment_1(self):
-        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
-        M = nest_msa.create_peer_matrix(sequences)
-        correctp = particle.Particle('c', (1, [1]))
-        correctp.best = (2, [1])
-        correctp.best_value = 9.0
-        self.assertEqual(nest_msa.row_alignment(1, M), correctp)
+#    def test_row_alignment_1(self):
+#        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+#        M = nest_msa.create_peer_matrix(sequences)
+#        correctp = particle.Particle('c', (1, [1]))
+#        correctp.best = (2, [1])
+#        correctp.best_value = 9.0
+#        self.assertEqual(nest_msa.row_alignment(1, M), correctp)
 
     def test_row_alignment_2(self):
         M = [['a', 'a', 'a', '-', 'a'],
