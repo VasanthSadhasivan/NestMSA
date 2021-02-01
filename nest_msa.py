@@ -2,7 +2,6 @@ import copy
 from particle import Particle
 from collections import defaultdict
 
-
 # Example
 # python> print(create_peer_matrix(["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]))
 # [['a', 'a', 'a', 'a'], ['b', 'c', 'b', 'b'], ['c', 'b', 'c', 'c'], ['b', 'c', 'h', 'b'], ['c', 'f', 'i', 'c'], ['d', 'g', 'm', 'j'], ['e', None, 'n', 'k'], ['m', None, None, 'm']]
@@ -90,7 +89,6 @@ def getposition(value, rowindex, matrix):
             indices.append(i + 1)
     return Particle(value,(rowindex, indices))
 
-
 def mostfrequent(row):
     freqList = [[row.count(letter), letter] for letter in set(row)]
     best = [0, None]
@@ -137,11 +135,8 @@ def create_swarm(index, M):
 
     return swarm
 
-
-# Need to fix .indexes depending on what getposition returns
 def criteria3(p, newindex, M):
     return len(p.pos[1]) != len(getposition(p.value, newindex, M).pos[1])
-
 
 def criteria2(p, threshold):
     return p.updated > threshold
