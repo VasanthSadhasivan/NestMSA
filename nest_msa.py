@@ -84,10 +84,10 @@ def remove_missing_rows(M):
 
 def getposition(value, rowindex, matrix):
     indices = []
-    row = matrix[rowindex - 1]
+    row = matrix[rowindex]
     for i in range(len(row)):
         if row[i] == value:
-            indices.append(i + 1)
+            indices.append(i)
     return Particle(value,(rowindex, indices))
 
 def mostfrequent(row):

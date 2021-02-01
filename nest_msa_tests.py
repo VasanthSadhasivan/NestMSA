@@ -108,51 +108,51 @@ class NestMSATestCase(unittest.TestCase):
             ['b', 'b', 'b', 'd', 'd'],
             ['b', 'c', 'c', 'd', 'd'],
             ['c', 'd', 'd', 'd', 'e']]
-        p = particle.Particle('b', [1,[3]])
-        self.assertEqual(nest_msa.criteria3(p, 2, M), True) 
+        p = particle.Particle('b', [0,[2]])
+        self.assertEqual(nest_msa.criteria3(p, 1, M), True)
    
     def test_criteria3_1(self):
         M = [['a', 'a', 'b', 'c', 'd'],
             ['b', 'b', 'b', 'd', 'd'],
             ['b', 'c', 'c', 'd', 'd'],
             ['c', 'd', 'd', 'd', 'e']]
-        p = particle.Particle('b', [1,[1, 2, 3]])
-        self.assertEqual(nest_msa.criteria3(p, 2, M), False) 
+        p = particle.Particle('b', [0,[0, 1, 2]])
+        self.assertEqual(nest_msa.criteria3(p, 1, M), False)
      
     def test_criteria3_2(self):
         M = [['a', 'a', 'b', 'c', 'd'],
             ['b', 'b', 'b', 'd', 'd'],
             ['b', 'c', 'c', 'd', 'd'],
             ['c', 'd', 'd', 'd', 'e']]
-        p = nest_msa.getposition('d', 3, M)
-        self.assertEqual(nest_msa.criteria3(p, 4, M), True) 
+        p = nest_msa.getposition('d', 2, M)
+        self.assertEqual(nest_msa.criteria3(p, 3, M), True)
 
     def test_stopcriteria_0(self):
         M = [['a', 'a', 'b', 'c', 'd'],
             ['b', 'b', 'b', 'd', 'd'],
             ['b', 'c', 'c', 'd', 'd'],
             ['c', 'd', 'd', 'd', 'e']]
-        p = particle.Particle('b', [1,[1, 2, 3]])
+        p = particle.Particle('b', [0,[0, 1, 2]])
         p.updated = 5
-        self.assertEqual(nest_msa.stopcriteria(p, 2, M, 4), False)
+        self.assertEqual(nest_msa.stopcriteria(p, 1, M, 4), False)
 
     def test_stopcriteria_1(self):
         M = [['a', 'a', 'b', 'c', 'd'],
             ['b', 'b', 'b', 'd', 'd'],
             ['b', 'c', 'c', 'd', 'd'],
             ['c', 'd', 'd', 'd', 'e']]
-        p = particle.Particle('b', [1,[3]])
+        p = particle.Particle('b', [0,[2]])
         p.updated = 4
-        self.assertEqual(nest_msa.stopcriteria(p, 2, M), False)
+        self.assertEqual(nest_msa.stopcriteria(p, 1, M), False)
 
     def test_stopcriteria_2(self):
         M = [['a', 'a', 'b', 'c', 'd'],
             ['b', 'b', 'b', 'd', 'd'],
             ['b', 'c', 'c', 'd', 'd'],
             ['c', 'd', 'd', 'd', 'e']]
-        p = particle.Particle('b', [1,[3]])
+        p = particle.Particle('b', [0,[2]])
         p.updated = 6
-        self.assertEqual(nest_msa.stopcriteria(p, 2, M), True)
+        self.assertEqual(nest_msa.stopcriteria(p, 1, M), True)
 
     def test_row_alignment_0(self):
         M = [['a', 'a', 'b', 'c', 'd'],
@@ -161,13 +161,13 @@ class NestMSATestCase(unittest.TestCase):
             ['c', 'd', 'd', 'd', 'e']]
         self.assertEqual(nest_msa.row_alignment(1, M), None)
 
-#    def test_row_alignment_1(self):
-#        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
-#        M = nest_msa.create_peer_matrix(sequences)
-#        correctp = particle.Particle('c', (1, [1]))
-#        correctp.best = (2, [1])
-#        correctp.best_value = 9.0
-#        self.assertEqual(nest_msa.row_alignment(1, M), correctp)
+    def test_row_alignment_1(self):
+        sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+        M = nest_msa.create_peer_matrix(sequences)
+        correctp = particle.Particle('c', (1, [1]))
+        correctp.best = (2, [0,1,2,3])
+        correctp.best_value = 9.0
+        self.assertEqual(nest_msa.row_alignment(1, M), correctp)
 
     def test_row_alignment_2(self):
         M = [['a', 'a', 'a', '-', 'a'],
@@ -233,17 +233,17 @@ class NestMSATestCase(unittest.TestCase):
     def test_get_position_1(self):
         sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
         matrix = nest_msa.create_peer_matrix(sequences)
-        self.assertEqual((nest_msa.getposition('b', 2, matrix)).pos, (2, [1, 3, 4]))
+        self.assertEqual((nest_msa.getposition('b', 1, matrix)).pos, (1, [0, 2, 3]))
 
     def test_get_position_2(self):
         sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
         matrix = nest_msa.create_peer_matrix(sequences)
-        self.assertEqual((nest_msa.getposition('c', 2, matrix)).pos, (2, [2]))
+        self.assertEqual((nest_msa.getposition('c', 1, matrix)).pos, (1, [1]))
 
     def test_get_position_3(self):
         sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
         matrix = nest_msa.create_peer_matrix(sequences)
-        self.assertEqual((nest_msa.getposition('b', 1, matrix)).pos, (1, []))
+        self.assertEqual((nest_msa.getposition('b', 0, matrix)).pos, (0, []))
 
     def test_fly_down_1(self):
         sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
