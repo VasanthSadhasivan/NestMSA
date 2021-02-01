@@ -164,21 +164,21 @@ def row_alignment(index, M):
     row = M[index]
 
     if aligned(row):
-        return []
+        return None 
 
     swarm = create_swarm(index, M)
 
     original_g = g = swarm[0]
 
-    original_g_value = g_value = objective(M, index, endindex=index)
+    original_g_value = g_value = objective(M, index, end_index=index)
 
     for particle in swarm:
         index_copy = index
         M_copy = M.copy()
 
-        particle.best_value = objective(M, index, endindex=index_copy)
+        particle.best_value = objective(M, index, end_index=index_copy)
 
-        missing_p = set(range(len(M_copy[0]))) - set(particle.pos.indexes)
+        missing_p = set(range(len(M_copy[0]))) - set(particle.pos[1])
         max_len = max([len(set(column(M, missinc_col)) - {'_'}) for missinc_col in missing_p])
         criteria_1 = max_len
 
@@ -197,11 +197,11 @@ def row_alignment(index, M):
             if score > g_value:
                 g_value = score
                 g = copy.deepcopy(particle)
-                g.best = getposition(particle.value, index_copy, M_copy)
+                g.best = getposition(particle.value, index_copy, M_copy).pos
                 g.best_value = score
 
     if g_value == original_g_value:
-        return []
+        return None
 
     return g
 
@@ -210,5 +210,5 @@ def nest_msa_main(M):
     for i in range(len(M)):
         globaly_optimal = row_alignment(i, M)
         if globaly_optimal:
-            M = fly_down(globaly_optimal, M, globaly_optimal.best.row - globaly_optimal.pos.row)
+            M = fly_down(globaly_optimal, M, globaly_optimal.best[0] - globaly_optimal.pos[0])
     return M
