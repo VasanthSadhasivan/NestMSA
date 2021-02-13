@@ -1,5 +1,5 @@
-import copy
 from particle import Particle
+import copy
 from collections import defaultdict
 
 # Example
@@ -28,7 +28,10 @@ def create_peer_matrix(list_of_strings):
 def pretty_print_matrix(matrix):  # Note that this prints None as a '-'
     for row in matrix:
         for i in range(len(row)):
-            print(row[i], end="")
+            if row[i] is None:
+                print('-',end="")
+            else:
+                print(row[i], end="")
             if i != (len(row) - 1):
                 print(" ", end="")
         print("")
@@ -75,8 +78,9 @@ def remove_missing_rows(M):
     for i, row in enumerate(M):
         skip = 1
         for each in row:
-            if each != ' ' and each != '-' and each is not None:
+            if each is not None:
                 skip = 0
+                break
         if skip == 0:
             M_new.append(row)
     return M_new
@@ -91,7 +95,7 @@ def getposition(value, rowindex, matrix):
     return Particle(value,(rowindex, indices))
 
 def mostfrequent(row):
-    freqList = [[row.count(letter), letter] for letter in set(row)]
+    freqList = [[row.count(letter), letter] for letter in (set(row) - {'-'})]
     best = [0, None]
     for each in freqList:
         if each[0] > best[0]:
@@ -159,12 +163,18 @@ def stopcriteria(p, newindex, M, threshold=5, debug=False):
         print("Terminating because of criteria 3")
     return (c2 and c3)
 
+def skip_missing(array):
+    without_missing = []
+    for elem in array:
+        if elem is not None:
+            without_missing.append(elem)
+    return without_missing
 
 def row_alignment(index, M):
     row = M[index]
 
     if aligned(row):
-        return None 
+        return None
 
     swarm = create_swarm(index, M)
 
@@ -174,15 +184,15 @@ def row_alignment(index, M):
 
     for particle in swarm:
         index_copy = index
-        M_copy = M.copy()
+        M_copy = copy.deepcopy(M)
 
         particle.best_value = objective(M, index, end_index=index_copy)
 
         missing_p = set(range(len(M_copy[0]))) - set(particle.pos[1])
-        max_len = max([len(set(column(M, missinc_col)) - {'_'}) for missinc_col in missing_p])
+        max_len = max([len(skip_missing(column(M_copy, missinc_col))) for missinc_col in missing_p])
         criteria_1 = max_len
 
-        while not(stopcriteria(particle, index_copy, M_copy)) and index_copy < criteria_1:
+        while index_copy < criteria_1-1 and not(stopcriteria(particle, index_copy, M_copy)):
             index_copy += 1
             particle.updated += 1
 
@@ -207,8 +217,11 @@ def row_alignment(index, M):
 
 
 def nest_msa_main(M):
+
     for i in range(len(M)):
         globaly_optimal = row_alignment(i, M)
+
         if globaly_optimal:
             M = fly_down(globaly_optimal, M, globaly_optimal.best[0] - globaly_optimal.pos[0])
+
     return M
