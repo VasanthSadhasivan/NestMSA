@@ -76,7 +76,7 @@ Matrix remove_missing_rows(Matrix M) {
     return mat;
 }
 
-Position getposition(int value, int rowindex, Matrix M)
+Particle getposition(int value, int rowindex, Matrix M)
 {
     int num = 0;
     char* row = M.matrix[rowindex];

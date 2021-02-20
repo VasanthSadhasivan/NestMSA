@@ -42,7 +42,7 @@ bool full_row(char *row, int rowLen);
 
 Matrix remove_missing_rows(Matrix M);
 
-Position getposition(int value, int rowindex, Matrix M);
+Particle getposition(int value, int rowindex, Matrix M);
 
 MostFrequent mostfrequent(char *row, int rowLen);
 
