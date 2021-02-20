@@ -59,7 +59,7 @@ Matrix create_peer_matrix(int strArrayLen, char **strArray)
     return M;
 }
 
-double weight(char *row, double w1, double w2, double w3) {
+double weight(char *row, int rowLen, double w1, double w2, double w3) {
     return 0;
 }
 
@@ -67,7 +67,7 @@ double objective(Matrix M, int row_index, int end_index) {
     return 0;
 }
 
-bool full_row(char *row) {
+bool full_row(char *row, int rowLen) {
     return false;
 }
 
@@ -104,7 +104,7 @@ Position getposition(int value, int rowindex, Matrix M)
     return p;
 }
 
-MostFrequent mostfrequent(char *row) {
+MostFrequent mostfrequent(char *row, int rowLen) {
     MostFrequent mf;
     return mf;
 }
@@ -119,7 +119,7 @@ char *column(Matrix M, int i) {
     return c;
 }
 
-bool aligned(char *row) {
+bool aligned(char *row, int rowLen) {
     return false;
 }
 

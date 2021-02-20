@@ -34,23 +34,23 @@ void pretty_print_matrix(Matrix M);
 
 Matrix create_peer_matrix(int strArrayLen, char **strArray);
 
-double weight(char *row, double w1=0.25, double w2=0.5, double w3=1.0);
+double weight(char *row, int rowLen, double w1=0.25, double w2=0.5, double w3=1.0);
 
 double objective(Matrix M, int row_index, int end_index=-1);
 
-bool full_row(char *row);
+bool full_row(char *row, int rowLen);
 
 Matrix remove_missing_rows(Matrix M);
 
 Position getposition(int value, int rowindex, Matrix M);
 
-MostFrequent mostfrequent(char *row);
+MostFrequent mostfrequent(char *row, int rowLen);
 
 Matrix fly_down(Particle p, Matrix M, int stride=1);
 
 char *column(Matrix M, int i);
 
-bool aligned(char *row);
+bool aligned(char *row, int rowLen);
 
 Particle *create_swarm(int index, Matrix M);
 
