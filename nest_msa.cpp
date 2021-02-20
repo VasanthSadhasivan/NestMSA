@@ -1,5 +1,6 @@
 #include "nest_msa.h"
 #include <stdio.h>
+#include <string.h>
 
 void pretty_print_matrix(Matrix M)
 {
@@ -15,21 +16,13 @@ void pretty_print_matrix(Matrix M)
     }
 }
 
-int length(char* string)
+Matrix create_peer_matrix(int strArrayLen, char **strArray)
 {
-    int cnt = 0;
-    for (char* pnt = string; *pnt != '\0'; pnt++)
-        cnt++;
-    return cnt;
-}
-
-Matrix create_peer_matrix(int argc, char** argv)
-{
-    int num_cols = argc - 1;
+    int num_cols = strArrayLen;
     int* lengths = new int[num_cols];
-    for (int i = 1; i < argc; i++)
+    for (int i = 0; i < strArrayLen; i++)
     {
-        lengths[i - 1] = length(argv[i]);
+        lengths[i] = strlen(strArray[i]);
     }
     int num_rows = lengths[0];
     for (int i = 1; i < num_cols; i++)
@@ -43,19 +36,19 @@ Matrix create_peer_matrix(int argc, char** argv)
     {
         mat[i] = new char[num_cols];
     }
-    for (int i = 1; i < argc; i++)
+    for (int i = 0; i < strArrayLen; i++)
     {
-        char* current_string = argv[i];
-        int len = lengths[i - 1];
+        char* current_string = strArray[i];
+        int len = lengths[i];
         for (int j = 0; j < len; j++)
         {
-            mat[j][i - 1] = current_string[j];
+            mat[j][i] = current_string[j];
         }
         if (len < num_rows)
         {
             for (int j = len; j < num_rows; j++)
             {
-                mat[j][i - 1] = '-';
+                mat[j][i] = '#';
             }
         }   
     }
@@ -104,11 +97,3 @@ bool criteria3(Particle p, int new_index, Matrix M)
     Position new_pos = getposition(p.value, new_index, M);
     return p.pos.num_cols != new_pos.num_cols;
 }
-
-int main(int argc, char** argv)
-{
-    Matrix M;
-    M = create_peer_matrix(argc, argv);
-    pretty_print_matrix(M);
-}
-
