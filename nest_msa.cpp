@@ -59,6 +59,23 @@ Matrix create_peer_matrix(int strArrayLen, char **strArray)
     return M;
 }
 
+double weight(char *row, double w1, double w2, double w3) {
+    return 0;
+}
+
+double objective(Matrix M, int row_index, int end_index) {
+    return 0;
+}
+
+bool full_row(char *row) {
+    return false;
+}
+
+Matrix remove_missing_rows(Matrix M) {
+    Matrix mat;
+    return mat;
+}
+
 Position getposition(int value, int rowindex, Matrix M)
 {
     int num = 0;
@@ -87,6 +104,30 @@ Position getposition(int value, int rowindex, Matrix M)
     return p;
 }
 
+MostFrequent mostfrequent(char *row) {
+    MostFrequent mf;
+    return mf;
+}
+
+Matrix fly_down(Particle p, Matrix M, int stride) {
+    Matrix mat;
+    return mat;
+}
+
+char *column(Matrix M, int i) {
+    char *c;
+    return c;
+}
+
+bool aligned(char *row) {
+    return false;
+}
+
+Particle *create_swarm(int index, Matrix M) {
+    Particle *p;
+    return p;
+}
+
 bool criteria2(Particle p, int threshold)
 {
     return p.updated > threshold;
@@ -96,4 +137,18 @@ bool criteria3(Particle p, int new_index, Matrix M)
 {
     Position new_pos = getposition(p.value, new_index, M);
     return p.pos.num_cols != new_pos.num_cols;
+}
+
+bool stopcriteria(Particle p, int newindex, Matrix M, int threshold, bool debug) {
+    return false;
+}
+
+Matrix skip_missing(Matrix M) {
+    Matrix mat;
+    return mat;
+}
+
+Particle row_alignment(int index, Matrix M) {
+    Particle p;
+    return p;
 }

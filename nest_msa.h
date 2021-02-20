@@ -30,6 +30,8 @@ struct MostFrequent
     char freqChar;
 };
 
+void pretty_print_matrix(Matrix M);
+
 Matrix create_peer_matrix(int strArrayLen, char **strArray);
 
 double weight(char *row, double w1=0.25, double w2=0.5, double w3=1.0);
@@ -40,7 +42,7 @@ bool full_row(char *row);
 
 Matrix remove_missing_rows(Matrix M);
 
-Particle getposition(int value, int rowindex, Matrix M);
+Position getposition(int value, int rowindex, Matrix M);
 
 MostFrequent mostfrequent(char *row);
 
