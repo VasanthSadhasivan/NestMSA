@@ -22,7 +22,7 @@ TEST_CASE("getposition() Test 0", "[getposition]") {
     CHECK(p.value == correct.value);
     CHECK(p.pos.row == correct.pos.row);
     CHECK(p.pos.num_cols == correct.pos.num_cols);
-    CHECK(memcpy(p.pos.col, correct.pos.col, correct.pos.num_cols) == 0);
+    CHECK(memcmp(p.pos.col, correct.pos.col, correct.pos.num_cols) == 0);
 }
 
 TEST_CASE("getposition() Test 1", "[getposition]") {
@@ -44,7 +44,7 @@ TEST_CASE("getposition() Test 1", "[getposition]") {
     CHECK(p.value == correct.value);
     CHECK(p.pos.row == correct.pos.row);
     CHECK(p.pos.num_cols == correct.pos.num_cols);
-    CHECK(memcpy(p.pos.col, correct.pos.col, correct.pos.num_cols) == 0);
+    CHECK(memcmp(p.pos.col, correct.pos.col, correct.pos.num_cols) == 0);
 }
 
 TEST_CASE("getposition() Test 2", "[getposition]") {
@@ -66,5 +66,5 @@ TEST_CASE("getposition() Test 2", "[getposition]") {
     CHECK(p.value == correct.value);
     CHECK(p.pos.row == correct.pos.row);
     CHECK(p.pos.num_cols == correct.pos.num_cols);
-    CHECK(memcpy(p.pos.col, correct.pos.col, correct.pos.num_cols) == 0);
+    CHECK(memcmp(p.pos.col, correct.pos.col, correct.pos.num_cols) == 0);
 }

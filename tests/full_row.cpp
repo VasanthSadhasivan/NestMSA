@@ -41,4 +41,3 @@ TEST_CASE("full_row() Test 3", "[full_row]") {
     Matrix M = create_peer_matrix(4, (char **)sequences);
     CHECK_FALSE(full_row(M.matrix[3], M.num_cols));
 }
-

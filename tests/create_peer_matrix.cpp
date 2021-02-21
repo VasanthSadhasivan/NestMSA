@@ -51,5 +51,3 @@ TEST_CASE("create_peer_matrix() Test 1", "[create_peer_matrix]") {
         CHECK(memcmp(M.matrix[i], correct[i], cols) == 0);
     }
 }
-
-

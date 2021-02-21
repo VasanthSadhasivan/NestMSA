@@ -41,10 +41,10 @@ TEST_CASE("row_alignment() Test 1", "[row_alignment]") {
     CHECK(p.best_value == correct.best_value);
     CHECK(p.pos.row == correct.pos.row);
     CHECK(p.pos.num_cols == correct.pos.num_cols);
-    CHECK(memcpy(p.pos.col, correct.pos.col, correct.pos.num_cols) == 0);
+    CHECK(memcmp(p.pos.col, correct.pos.col, correct.pos.num_cols) == 0);
     CHECK(p.best.row == correct.best.row);
     CHECK(p.best.num_cols == correct.best.num_cols);
-    CHECK(memcpy(p.best.col, correct.best.col, correct.pos.num_cols) == 0);
+    CHECK(memcmp(p.best.col, correct.best.col, correct.pos.num_cols) == 0);
 }
 
 TEST_CASE("row_alignment() Test 2", "[row_alignment]") {
