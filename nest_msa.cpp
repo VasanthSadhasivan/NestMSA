@@ -174,9 +174,9 @@ Matrix fly_down(Particle p, Matrix M, int stride)
         mat[i] = new char[M_new.num_cols];
     }
     M_new.matrix = mat;
-    for (int i = 0; i < M.num_cols; i++)
+    for (int i = 0; i < M.num_rows; i++)
     {
-        for (int j = 0; j < M.num_rows; j++)
+        for (int j = 0; j < M.num_cols; j++)
         {
             M_new.matrix[i][j] = M.matrix[i][j];
         }
@@ -189,13 +189,14 @@ Matrix fly_down(Particle p, Matrix M, int stride)
         }
     }
 
+
     for (int i = (M_new.num_rows - 1); i > p.pos.row; i--)
     {
         for (int j = 0; j < M_new.num_cols; j++)
         {
             for (int k = 0; k < p.pos.num_cols; k++)
             {
-                if (j == k)
+                if (j == p.pos.col[k])
                 {
                     M_new.matrix[i][j] = M_new.matrix[i - 1][j];
                 }
@@ -207,7 +208,7 @@ Matrix fly_down(Particle p, Matrix M, int stride)
     {
         for (int i = 0; i < stride; i++)
         {
-            M_new.matrix[p.pos.row + i][k] = '-';
+            M_new.matrix[p.pos.row + i][p.pos.col[k]] = '-';
         }
     }
 
@@ -244,24 +245,27 @@ Swarm create_swarm(int index, Matrix M)
     int num_p = 0;
     char* row = M.matrix[index];
     char current_c;
-    bool flag = true;
+    bool flag = false;
 
     for (int i = 0; i < M.num_cols; i++)
     {
         current_c = row[i];
-        for (int j = 0; j < num_p or flag; j++)
+        if (current_c == '#')
+            break;
+        for (int j = 0; j < num_p; j++)
         {
             if (swarm[j].value == current_c)
             {
-                flag = false;
+                flag = true;
+                break;
             }  
         }           
-        if (flag)
+        if (!flag)
         {
             swarm[num_p] = getposition(current_c, index, M);         
             num_p++;
         }
-        flag = true;
+        flag = false;
     }
 
     Swarm s = {
@@ -304,3 +308,54 @@ Particle row_alignment(int index, Matrix M) {
     Particle p;
     return p;
 }
+
+void print_swarm(Swarm s)
+{
+    for (int i = 0; i < s.num_particles; i++)
+    {
+        printf("Particle %d:\n", i + 1);
+        printf("\tValue:   %c\n", s.swarm[i].value);
+        printf("\tRow:     %d\n", s.swarm[i].pos.row);
+        printf("\tColumns: [");
+        for (int j = 0; j < s.swarm[i].pos.num_cols; j++)
+        {
+            if (j != s.swarm[i].pos.num_cols - 1)
+            {   
+                printf("%d, ", s.swarm[i].pos.col[j]);
+            }
+            else
+            {
+                printf("%d]\n\n", s.swarm[i].pos.col[j]);
+            }
+        }
+    }
+}
+
+/*
+int main(int argc, char** argv)
+{
+    const char *sequences[4];
+    sequences[0] = "abcbcdem";
+    sequences[1] = "acbcfg";
+    sequences[2] = "abchimn";
+    sequences[3] = "abcbcjkm";
+    Matrix M = create_peer_matrix(4, (char**)sequences);
+    
+    Particle p;
+    p.value = 'b';
+    Position p_pos;
+    p_pos.row = 1;
+    p_pos.num_cols = 3;
+    p_pos.col = new int[3] {0, 2, 3};
+    p.pos = p_pos;
+
+
+    pretty_print_matrix(M);
+    printf("\n\n");
+    Matrix test = fly_down(p, M, 3);
+    printf("\n\n");
+    pretty_print_matrix(test);
+    
+
+}
+*/
