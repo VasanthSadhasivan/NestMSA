@@ -1,6 +1,7 @@
 #include "nest_msa.h"
 #include <stdio.h>
 #include <string.h>
+#include <map>
 
 void pretty_print_matrix(Matrix M)
 {
@@ -60,7 +61,21 @@ Matrix create_peer_matrix(int strArrayLen, char **strArray)
 }
 
 double weight(char *row, int rowLen, double w1, double w2, double w3) {
-    return 0;
+    if (full_row(row, rowLen)) {
+        return w3;
+    }
+
+    int most_freq_count = mostfrequent(row, rowLen).freq;
+
+    if (aligned(row, rowLen)) {
+        return ((w2 * most_freq_count) / rowLen);
+    }
+
+    int x = most_freq_count;
+    if (most_freq_count <= 1) {
+        x = 0;
+    }
+    return ((w1 * x) / rowLen);
 }
 
 double objective(Matrix M, int row_index, int end_index) {
@@ -68,7 +83,19 @@ double objective(Matrix M, int row_index, int end_index) {
 }
 
 bool full_row(char *row, int rowLen) {
-    return false;
+    if (rowLen <= 0) {
+        return false;
+    }
+    char first_c = row[0];
+    for (int i = 1; i < rowLen; i++) {
+        if (first_c != row[i]) {
+            return false;
+        }
+    }
+    if (first_c == '-' || first_c == '#') {
+        return false;
+    }
+    return true;
 }
 
 Matrix remove_missing_rows(Matrix M) {
@@ -109,7 +136,29 @@ Particle getposition(int value, int rowindex, Matrix M)
 }
 
 MostFrequent mostfrequent(char *row, int rowLen) {
-    MostFrequent mf;
+    std::map<char, int> hashmap;
+    for (int i = 0; i < rowLen; i++) {
+        if (hashmap.find(row[i]) == hashmap.end()) {
+            hashmap[row[i]] = 1;
+        }
+        else {
+            hashmap[row[i]]++;
+        }
+    }
+    int best_freq = 0;
+    char best_freqChar = '\0';
+    std::map<char, int>::iterator it = hashmap.begin();
+    while (it != hashmap.end()) {
+        if ((it->second) > best_freq) {
+            best_freq = it->second;
+            best_freqChar = it->first;
+        }
+        it++;
+    }
+    MostFrequent mf = {
+        .freq = best_freq,
+        .freqChar = best_freqChar
+    };
     return mf;
 }
 
@@ -177,11 +226,10 @@ char* column(Matrix M, int col_number)
 
 bool aligned(char *row, int num_cols) 
 {
-    bool output;
     char first_c = row[0];
     for (int i = 1; i < num_cols; i++)
     {
-        if (row[i] != first_c and row[i] != '-' and row[i] != '#')
+        if (row[i] != first_c && row[i] != '-' && row[i] != '#')
         {
             return false;
         }
@@ -190,22 +238,7 @@ bool aligned(char *row, int num_cols)
     return true;
 }
 
-Particle* clip_swarm(Particle* swarm, int num_particles)
-{
-    Particle* new_swarm = new Particle[num_particles];
-
-    MostFrequent mf;
-    
-    for (int i = 0; i < num_particles; i++)
-    {
-        new_swarm[i] = swarm[i];
-    }
-
-    delete swarm;
-    return new_swarm;
-}
-
-Particle* create_swarm(int index, Matrix M) 
+Swarm create_swarm(int index, Matrix M) 
 {
     Particle* swarm = new Particle[M.num_cols];
     int num_p = 0;
@@ -231,8 +264,11 @@ Particle* create_swarm(int index, Matrix M)
         flag = true;
     }
 
-    Particle* new_swarm = clip_swarm(swarm, num_p);
-    return new_swarm;
+    Swarm s = {
+        .num_particles = num_p,
+        .swarm = swarm
+    };
+    return s;
 }
 
 
@@ -248,7 +284,15 @@ bool criteria3(Particle p, int new_index, Matrix M)
 }
 
 bool stopcriteria(Particle p, int newindex, Matrix M, int threshold, bool debug) {
-    return false;
+    bool c2 = criteria2(p, threshold);
+    bool c3 = criteria3(p, newindex, M);
+    if (debug && c2) {
+        // print statement?
+    }
+    else if (debug && c3) {
+        // print statement?
+    }
+    return (c2 && c3);
 }
 
 Matrix skip_missing(Matrix M) {

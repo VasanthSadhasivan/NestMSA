@@ -30,6 +30,12 @@ struct MostFrequent
     char freqChar;
 };
 
+struct Swarm
+{
+    int num_particles;
+    Particle *swarm;
+};
+
 void pretty_print_matrix(Matrix M);
 
 Matrix create_peer_matrix(int strArrayLen, char **strArray);
@@ -52,7 +58,7 @@ char *column(Matrix M, int i);
 
 bool aligned(char *row, int rowLen);
 
-Particle *create_swarm(int index, Matrix M);
+Swarm create_swarm(int index, Matrix M);
 
 bool criteria3(Particle p, int new_index, Matrix M);
 
