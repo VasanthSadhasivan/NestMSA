@@ -31,4 +31,3 @@ TEST_CASE("aligned() Test 2", "[aligned]") {
     Matrix M = create_peer_matrix(4, (char **)sequences);
     CHECK_FALSE(aligned(M.matrix[6], M.num_cols));    
 }
-
