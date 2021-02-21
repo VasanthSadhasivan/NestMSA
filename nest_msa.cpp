@@ -243,8 +243,8 @@ bool criteria2(Particle p, int threshold)
 
 bool criteria3(Particle p, int new_index, Matrix M)
 {
-    Position new_pos = getposition(p.value, new_index, M);
-    return p.pos.num_cols != new_pos.num_cols;
+    Particle new_particle = getposition(p.value, new_index, M);
+    return p.pos.num_cols != new_particle.pos.num_cols;
 }
 
 bool stopcriteria(Particle p, int newindex, Matrix M, int threshold, bool debug) {
