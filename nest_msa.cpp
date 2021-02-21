@@ -101,7 +101,11 @@ Particle getposition(int value, int rowindex, Matrix M)
     p.row = rowindex;
     p.num_cols = num;
     p.col = indices;
-    return p;
+
+    Particle output_particle;
+    output_particle.value = value;
+    output_particle.pos = p;
+    return output_particle;
 }
 
 MostFrequent mostfrequent(char *row, int rowLen) {
@@ -109,24 +113,128 @@ MostFrequent mostfrequent(char *row, int rowLen) {
     return mf;
 }
 
-Matrix fly_down(Particle p, Matrix M, int stride) {
-    Matrix mat;
-    return mat;
+Matrix fly_down(Particle p, Matrix M, int stride) 
+{
+    Matrix M_new;
+
+    M_new.num_rows = M.num_rows + stride;
+    M_new.num_cols = M.num_cols;
+    char** mat = new char*[M_new.num_rows];
+    for (int i = 0; i < M_new.num_rows; i++)
+    {
+        mat[i] = new char[M_new.num_cols];
+    }
+    M_new.matrix = mat;
+    for (int i = 0; i < M.num_cols; i++)
+    {
+        for (int j = 0; j < M.num_rows; j++)
+        {
+            M_new.matrix[i][j] = M.matrix[i][j];
+        }
+    }
+    for (int i = M.num_rows; i < M_new.num_rows; i++)
+    {
+        for (int j = 0; j < M.num_rows; j++)
+        {
+            M_new.matrix[i][j] = '#';;
+        }
+    }
+
+    for (int i = (M_new.num_rows - 1); i > p.pos.row; i--)
+    {
+        for (int j = 0; j < M_new.num_cols; j++)
+        {
+            for (int k = 0; k < p.pos.num_cols; k++)
+            {
+                if (j == k)
+                {
+                    M_new.matrix[i][j] = M_new.matrix[i - 1][j];
+                }
+            }
+        }
+    }
+
+    for (int k = 0; k < p.pos.num_cols; k++)
+    {
+        for (int i = 0; i < stride; i++)
+        {
+            M_new.matrix[p.pos.row + i][k] = '-';
+        }
+    }
+
+    return remove_missing_rows(M_new);
 }
 
-char *column(Matrix M, int i) {
-    char *c;
-    return c;
+char* column(Matrix M, int col_number) 
+{
+    char* column = new char[M.num_rows];
+    for (int i = 0; i < M.num_rows; i++)
+    {
+        column[i] = M.matrix[i][col_number];
+    }
+    return column;
 }
 
-bool aligned(char *row, int rowLen) {
-    return false;
+bool aligned(char *row, int num_cols) 
+{
+    bool output;
+    char first_c = row[0];
+    for (int i = 1; i < num_cols; i++)
+    {
+        if (row[i] != first_c and row[i] != '-');
+        {
+            return false;
+        }
+         
+    }
+    return true;
 }
 
-Particle *create_swarm(int index, Matrix M) {
-    Particle *p;
-    return p;
+Particle* clip_swarm(Particle* swarm, int num_particles)
+{
+    Particle* new_swarm = new Particle[num_particles];
+
+    MostFrequent mf;
+    
+    for (int i = 0; i < num_particles; i++)
+    {
+        new_swarm[i] = swarm[i];
+    }
+
+    delete swarm;
+    return new_swarm;
 }
+
+Particle* create_swarm(int index, Matrix M) 
+{
+    Particle* swarm = new Particle[M.num_cols];
+    int num_p = 0;
+    char* row = M.matrix[index];
+    char current_c;
+    bool flag = true;
+
+    for (int i = 0; i < M.num_cols; i++)
+    {
+        current_c = row[i];
+        for (int j = 0; j < num_p or flag; j++)
+        {
+            if (swarm[j].value == current_c)
+            {
+                flag = false;
+            }  
+        }           
+        if (flag)
+        {
+            swarm[num_p] = getposition(current_c, index, M);         
+            num_p++;
+        }
+        flag = true;
+    }
+
+    Particle* new_swarm = clip_swarm(swarm, num_p);
+    return new_swarm;
+}
+
 
 bool criteria2(Particle p, int threshold)
 {
