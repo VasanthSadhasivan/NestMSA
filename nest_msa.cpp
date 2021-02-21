@@ -181,7 +181,7 @@ bool aligned(char *row, int num_cols)
     char first_c = row[0];
     for (int i = 1; i < num_cols; i++)
     {
-        if (row[i] != first_c and row[i] != '-');
+        if (row[i] != first_c and row[i] != '-' and row[i] != '#')
         {
             return false;
         }
