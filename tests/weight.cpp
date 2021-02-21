@@ -9,7 +9,7 @@ TEST_CASE("weight() Test 0", "[weight]") {
     sequences[2] = "abchimn";
     sequences[3] = "abcbcjkm";
     Matrix M = create_peer_matrix(4, (char **)sequences);
-    double w = weight(M.matrix[0]);
+    double w = weight(M.matrix[0], M.num_cols);
     CHECK(w == Approx(1.0));
 }
 
@@ -20,6 +20,6 @@ TEST_CASE("weight() Test 1", "[weight]") {
     sequences[2] = "abchimn";
     sequences[3] = "abcbcjkm";
     Matrix M = create_peer_matrix(4, (char **)sequences);
-    double w = weight(M.matrix[1]);
+    double w = weight(M.matrix[1], M.num_cols);
     CHECK(w == Approx(0.1875));
 }
