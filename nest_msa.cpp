@@ -147,7 +147,7 @@ Matrix remove_missing_rows(Matrix M) {
     char** actualmat = new char*[mat.num_rows];
     for (int i = 0; i < mat.num_rows; i++)
     {
-        mat.matrix[i] = new char[mat.num_cols];
+        actualmat[i] = new char[mat.num_cols];
     }
     mat.matrix = actualmat;
     for(int i = 0; i < mat.num_rows; i++){
