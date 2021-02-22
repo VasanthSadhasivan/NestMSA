@@ -1,4 +1,4 @@
-#include "nest_msa.hpp"
+#include "nest_msa.h"
 #include <stdio.h>
 #include <string.h>
 #include <map>
