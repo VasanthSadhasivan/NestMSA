@@ -134,7 +134,7 @@ Matrix remove_missing_rows(Matrix M) {
     for(int i = 0; i < M.num_rows; i++){
         int skip = 1;
         for(int j = 0; j < M.num_cols; j++){
-            if(M.matrix[i][j] != '#'){
+            if(M.matrix[i][j] != '#' || M.matrix[i][j] != '-'){
                 skip = 0;
                 break;
             }
@@ -377,7 +377,25 @@ void print_swarm(Swarm s)
     }
 }
 
-
+/*
+int main(){
+    const char *sequences[4];
+    sequences[0] = "abcbcde";
+    sequences[1] = "acbcfg";
+    sequences[2] = "abchimn###";
+    sequences[3] = "abcbcjkm##";
+    const char *sequences_correct[4];
+    sequences_correct[0] = "abcbcde";
+    sequences_correct[1] = "acbcfg";
+    sequences_correct[2] = "abchimn-";
+    sequences_correct[3] = "abcbcjkm";
+    Matrix M = create_peer_matrix(4, (char **)sequences);
+    Matrix correct = create_peer_matrix(4, (char **)sequences_correct);
+    M = remove_missing_rows(M);
+    pretty_print_matrix(M);
+    return 0;
+}
+*/
 /*
 int main(int argc, char** argv)
 {
