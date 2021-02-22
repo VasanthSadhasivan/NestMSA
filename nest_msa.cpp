@@ -84,7 +84,7 @@ double objective(Matrix M, int row_index, int end_index) {
     double weights = 0;
     int A = 0;
     for(int i = row_index; i < M.num_rows; i ++){
-        weights += weight(M.matrix[i], M.num_cols, .25, 0.5, 1.0);
+        weights += weight(M.matrix[i], M.num_cols);
         if(aligned(M.matrix[i], M.num_cols)){
             A += 1;
         }
@@ -92,18 +92,22 @@ double objective(Matrix M, int row_index, int end_index) {
     MostFrequent mf = mostfrequent(M.matrix[row_index], M.num_cols);
     
     if(end_index == -1){
-        end_index = M.num_cols - 1;
+        end_index = M.num_cols;
     }
-    if(end_index >= M.num_cols){
+    if(end_index > M.num_cols){
         printf("End index exceed matrix size\n");
         exit(1);
     }
     int gaps = 0;
     for(int i = row_index; i < M.num_rows; i ++){
+        int row_emp = M.num_cols;
         for(int k = 0; k < M.num_cols; k++){
             if(M.matrix[i][k] == '#'){
-                gaps += 1;
+                row_emp -= 1;
             }
+        }
+        if(row_emp == 0){
+            gaps += 1;
         }
     }
     weights = weights * A * mf.freq;
@@ -281,9 +285,13 @@ char* column(Matrix M, int col_number)
 bool aligned(char *row, int num_cols) 
 {
     char first_c = row[0];
+    int empty = 0;
+    if(first_c == '#'){
+        empty = 1;
+    }
     for (int i = 1; i < num_cols; i++)
     {
-        if (row[i] != first_c && row[i] != '-' && row[i] != '#')
+        if (row[i] != first_c && row[i] != '-' && row[i] != '#' && !empty)
         {
             return false;
         }
@@ -384,25 +392,20 @@ void print_swarm(Swarm s)
     }
 }
 
-
+/*
 int main(){
     const char *sequences[4];
-    sequences[0] = "abcbcde";
+    sequences[0] = "abcbcdem";
     sequences[1] = "acbcfg";
-    sequences[2] = "abchimn###";
-    sequences[3] = "abcbcjkm##";
-    const char *sequences_correct[4];
-    sequences_correct[0] = "abcbcde";
-    sequences_correct[1] = "acbcfg";
-    sequences_correct[2] = "abchimn-";
-    sequences_correct[3] = "abcbcjkm";
+    sequences[2] = "abchimn";
+    sequences[3] = "abcbcjkm";
     Matrix M = create_peer_matrix(4, (char **)sequences);
-    Matrix correct = create_peer_matrix(4, (char **)sequences_correct);
-    M = remove_missing_rows(M);
+    double o = objective(M, 1);
+    printf("O: %f\n", o);
     pretty_print_matrix(M);
     return 0;
 }
-
+*/
 /*
 int main(int argc, char** argv)
 {
