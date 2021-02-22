@@ -378,9 +378,6 @@ void print_swarm(Swarm s)
 }
 
 
-int main(){
-    return 0;
-}
 /*
 int main(int argc, char** argv)
 {
