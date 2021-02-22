@@ -129,12 +129,13 @@ bool full_row(char *row, int rowLen) {
 
 Matrix remove_missing_rows(Matrix M) {
     Matrix mat;
+
     mat.num_cols = M.num_cols;
     mat.num_rows = 0;
     for(int i = 0; i < M.num_rows; i++){
         int skip = 1;
         for(int j = 0; j < M.num_cols; j++){
-            if(M.matrix[i][j] != '#' || M.matrix[i][j] != '-'){
+            if(M.matrix[i][j] != '#' && M.matrix[i][j] != '-'){
                 skip = 0;
                 break;
             }
@@ -143,6 +144,12 @@ Matrix remove_missing_rows(Matrix M) {
             mat.num_rows += 1;
         }
     }
+    char** actualmat = new char*[mat.num_rows];
+    for (int i = 0; i < mat.num_rows; i++)
+    {
+        mat.matrix[i] = new char[mat.num_cols];
+    }
+    mat.matrix = actualmat;
     for(int i = 0; i < mat.num_rows; i++){
         mat.matrix[i] = M.matrix[i];
     }
@@ -377,7 +384,7 @@ void print_swarm(Swarm s)
     }
 }
 
-/*
+
 int main(){
     const char *sequences[4];
     sequences[0] = "abcbcde";
@@ -395,7 +402,7 @@ int main(){
     pretty_print_matrix(M);
     return 0;
 }
-*/
+
 /*
 int main(int argc, char** argv)
 {
