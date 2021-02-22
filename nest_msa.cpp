@@ -1,7 +1,8 @@
-#include "nest_msa.h"
+#include "nest_msa.hpp"
 #include <stdio.h>
 #include <string.h>
 #include <map>
+
 
 void pretty_print_matrix(Matrix M)
 {
@@ -78,8 +79,36 @@ double weight(char *row, int rowLen, double w1, double w2, double w3) {
     return ((w1 * x) / rowLen);
 }
 
+
 double objective(Matrix M, int row_index, int end_index) {
-    return 0;
+    double weights = 0;
+    int A = 0;
+    for(int i = row_index; i < M.num_rows; i ++){
+        weights += weight(M.matrix[i], M.num_cols, .25, 0.5, 1.0);
+        if(aligned(M.matrix[i], M.num_cols)){
+            A += 1;
+        }
+    }
+    MostFrequent mf = mostfrequent(M.matrix[row_index], M.num_cols);
+    
+    if(end_index == -1){
+        end_index = M.num_cols - 1;
+    }
+    if(end_index >= M.num_cols){
+        printf("End index exceed matrix size\n");
+        exit(1);
+    }
+    int gaps = 0;
+    for(int i = row_index; i < M.num_rows; i ++){
+        for(int k = 0; k < M.num_cols; k++){
+            if(M.matrix[i][k] == '#'){
+                gaps += 1;
+            }
+        }
+    }
+    weights = weights * A * mf.freq;
+    weights = weights / (1 + gaps);
+    return weights;
 }
 
 bool full_row(char *row, int rowLen) {
@@ -100,6 +129,23 @@ bool full_row(char *row, int rowLen) {
 
 Matrix remove_missing_rows(Matrix M) {
     Matrix mat;
+    mat.num_cols = M.num_cols;
+    mat.num_rows = 0;
+    for(int i = 0; i < M.num_rows; i++){
+        int skip = 1;
+        for(int j = 0; j < M.num_cols; j++){
+            if(M.matrix[i][j] != '#'){
+                skip = 0;
+                break;
+            }
+        }
+        if(!skip){
+            mat.num_rows += 1;
+        }
+    }
+    for(int i = 0; i < mat.num_rows; i++){
+        mat.matrix[i] = M.matrix[i];
+    }
     return mat;
 }
 
@@ -331,6 +377,10 @@ void print_swarm(Swarm s)
     }
 }
 
+
+int main(){
+    return 0;
+}
 /*
 int main(int argc, char** argv)
 {
