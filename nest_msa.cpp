@@ -246,8 +246,7 @@ Matrix fly_down(Particle p, Matrix M, int stride)
         }
     }
 
-
-    for (int i = (M_new.num_rows - 1); i > p.pos.row; i--)
+    for (int i = (M_new.num_rows - 1); i > (p.pos.row + stride - 1); i--)
     {
         for (int j = 0; j < M_new.num_cols; j++)
         {
@@ -255,7 +254,7 @@ Matrix fly_down(Particle p, Matrix M, int stride)
             {
                 if (j == p.pos.col[k])
                 {
-                    M_new.matrix[i][j] = M_new.matrix[i - 1][j];
+                    M_new.matrix[i][j] = M_new.matrix[i - stride][j];
                 }
             }
         }
@@ -427,7 +426,8 @@ int main(int argc, char** argv)
 
     pretty_print_matrix(M);
     printf("\n\n");
-    Matrix test = fly_down(p, M, 3);
+    Matrix test = fly_down(p, M, 1);
+    printf("Number of Rows: %d\n", test.num_rows);
     printf("\n\n");
     pretty_print_matrix(test);
     
