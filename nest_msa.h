@@ -70,4 +70,6 @@ Matrix skip_missing(Matrix M);
 
 Particle row_alignment(int index, Matrix M);
 
+Matrix nest_msa_main(Matrix M);
+
 #endif
