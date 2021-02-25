@@ -62,7 +62,7 @@ TEST_CASE("getposition() Test 2", "[getposition]") {
             .col = new int[0] {}
         }
     };
-    Particle p = getposition('c', 1, M);
+    Particle p = getposition('b', 0, M);
     CHECK(p.value == correct.value);
     CHECK(p.pos.row == correct.pos.row);
     CHECK(p.pos.num_cols == correct.pos.num_cols);

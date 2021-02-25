@@ -6,6 +6,7 @@
 #include <set>
 #include <iterator>
 
+
 void pretty_print_matrix(Matrix M)
 {
     for (int i = 0; i < M.num_rows; i++)
@@ -82,7 +83,38 @@ double weight(char *row, int rowLen, double w1, double w2, double w3) {
 }
 
 double objective(Matrix M, int row_index, int end_index=-1) {
-    return 0;
+    double weights = 0;
+    int A = 0;
+    for(int i = row_index; i < M.num_rows; i ++){
+        weights += weight(M.matrix[i], M.num_cols);
+        if(aligned(M.matrix[i], M.num_cols)){
+            A += 1;
+        }
+    }
+    MostFrequent mf = mostfrequent(M.matrix[row_index], M.num_cols);
+    
+    if(end_index == -1){
+        end_index = M.num_cols;
+    }
+    if(end_index > M.num_cols){
+        printf("End index exceed matrix size\n");
+        exit(1);
+    }
+    int gaps = 0;
+    for(int i = row_index; i < M.num_rows; i ++){
+        int row_emp = M.num_cols;
+        for(int k = 0; k < M.num_cols; k++){
+            if(M.matrix[i][k] == '#'){
+                row_emp -= 1;
+            }
+        }
+        if(row_emp == 0){
+            gaps += 1;
+        }
+    }
+    weights = weights * A * mf.freq;
+    weights = weights / (1 + gaps);
+    return weights;
 }
 
 bool full_row(char *row, int rowLen) {
@@ -103,6 +135,30 @@ bool full_row(char *row, int rowLen) {
 
 Matrix remove_missing_rows(Matrix M) {
     Matrix mat;
+
+    mat.num_cols = M.num_cols;
+    mat.num_rows = 0;
+    for(int i = 0; i < M.num_rows; i++){
+        int skip = 1;
+        for(int j = 0; j < M.num_cols; j++){
+            if(M.matrix[i][j] != '#' && M.matrix[i][j] != '-'){
+                skip = 0;
+                break;
+            }
+        }
+        if(!skip){
+            mat.num_rows += 1;
+        }
+    }
+    char** actualmat = new char*[mat.num_rows];
+    for (int i = 0; i < mat.num_rows; i++)
+    {
+        actualmat[i] = new char[mat.num_cols];
+    }
+    mat.matrix = actualmat;
+    for(int i = 0; i < mat.num_rows; i++){
+        mat.matrix[i] = M.matrix[i];
+    }
     return mat;
 }
 
@@ -177,9 +233,9 @@ Matrix fly_down(Particle p, Matrix M, int stride=1)
         mat[i] = new char[M_new.num_cols];
     }
     M_new.matrix = mat;
-    for (int i = 0; i < M.num_cols; i++)
+    for (int i = 0; i < M.num_rows; i++)
     {
-        for (int j = 0; j < M.num_rows; j++)
+        for (int j = 0; j < M.num_cols; j++)
         {
             M_new.matrix[i][j] = M.matrix[i][j];
         }
@@ -192,15 +248,15 @@ Matrix fly_down(Particle p, Matrix M, int stride=1)
         }
     }
 
-    for (int i = (M_new.num_rows - 1); i > p.pos.row; i--)
+    for (int i = (M_new.num_rows - 1); i > (p.pos.row + stride - 1); i--)
     {
         for (int j = 0; j < M_new.num_cols; j++)
         {
             for (int k = 0; k < p.pos.num_cols; k++)
             {
-                if (j == k)
+                if (j == p.pos.col[k])
                 {
-                    M_new.matrix[i][j] = M_new.matrix[i - 1][j];
+                    M_new.matrix[i][j] = M_new.matrix[i - stride][j];
                 }
             }
         }
@@ -210,7 +266,7 @@ Matrix fly_down(Particle p, Matrix M, int stride=1)
     {
         for (int i = 0; i < stride; i++)
         {
-            M_new.matrix[p.pos.row + i][k] = '-';
+            M_new.matrix[p.pos.row + i][p.pos.col[k]] = '-';
         }
     }
 
@@ -230,9 +286,13 @@ char* column(Matrix M, int col_number)
 bool aligned(char *row, int num_cols) 
 {
     char first_c = row[0];
+    int empty = 0;
+    if(first_c == '#'){
+        empty = 1;
+    }
     for (int i = 1; i < num_cols; i++)
     {
-        if (row[i] != first_c && row[i] != '-' && row[i] != '#')
+        if (row[i] != first_c && row[i] != '-' && row[i] != '#' && !empty)
         {
             return false;
         }
@@ -247,24 +307,27 @@ Swarm create_swarm(int index, Matrix M)
     int num_p = 0;
     char* row = M.matrix[index];
     char current_c;
-    bool flag = true;
+    bool flag = false;
 
     for (int i = 0; i < M.num_cols; i++)
     {
         current_c = row[i];
-        for (int j = 0; j < num_p or flag; j++)
+        if (current_c == '#')
+            break;
+        for (int j = 0; j < num_p; j++)
         {
             if (swarm[j].value == current_c)
             {
-                flag = false;
+                flag = true;
+                break;
             }  
         }           
-        if (flag)
+        if (!flag)
         {
             swarm[num_p] = getposition(current_c, index, M);         
             num_p++;
         }
-        flag = true;
+        flag = false;
     }
 
     Swarm s = {
@@ -333,8 +396,6 @@ Matrix copyMatrix(Matrix M){
     return matrix_copy;
 }
 
-
-
 Position *row_alignment(int index, Matrix M){
     char *row = M.matrix[index];
     int index_copy;
@@ -396,3 +457,69 @@ Position *row_alignment(int index, Matrix M){
 
     return &g;
 }
+
+void print_swarm(Swarm s)
+{
+    for (int i = 0; i < s.num_particles; i++)
+    {
+        printf("Particle %d:\n", i + 1);
+        printf("\tValue:   %c\n", s.swarm[i].value);
+        printf("\tRow:     %d\n", s.swarm[i].pos.row);
+        printf("\tColumns: [");
+        for (int j = 0; j < s.swarm[i].pos.num_cols; j++)
+        {
+            if (j != s.swarm[i].pos.num_cols - 1)
+            {   
+                printf("%d, ", s.swarm[i].pos.col[j]);
+            }
+            else
+            {
+                printf("%d]\n\n", s.swarm[i].pos.col[j]);
+            }
+        }
+    }
+}
+
+/*
+int main(){
+    const char *sequences[4];
+    sequences[0] = "abcbcdem";
+    sequences[1] = "acbcfg";
+    sequences[2] = "abchimn";
+    sequences[3] = "abcbcjkm";
+    Matrix M = create_peer_matrix(4, (char **)sequences);
+    double o = objective(M, 1);
+    printf("O: %f\n", o);
+    pretty_print_matrix(M);
+    return 0;
+}
+*/
+/*
+int main(int argc, char** argv)
+{
+    const char *sequences[4];
+    sequences[0] = "abcbcdem";
+    sequences[1] = "acbcfg";
+    sequences[2] = "abchimn";
+    sequences[3] = "abcbcjkm";
+    Matrix M = create_peer_matrix(4, (char**)sequences);
+    
+    Particle p;
+    p.value = 'b';
+    Position p_pos;
+    p_pos.row = 1;
+    p_pos.num_cols = 3;
+    p_pos.col = new int[3] {0, 2, 3};
+    p.pos = p_pos;
+
+
+    pretty_print_matrix(M);
+    printf("\n\n");
+    Matrix test = fly_down(p, M, 1);
+    printf("Number of Rows: %d\n", test.num_rows);
+    printf("\n\n");
+    pretty_print_matrix(test);
+    
+
+}
+*/
