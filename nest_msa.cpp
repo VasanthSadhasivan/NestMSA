@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <set>
 #include <iterator>
-
+#include <vector>
 
 void pretty_print_matrix(Matrix M)
 {
@@ -82,7 +82,7 @@ double weight(char *row, int rowLen, double w1, double w2, double w3) {
     return ((w1 * x) / rowLen);
 }
 
-double objective(Matrix M, int row_index, int end_index=-1) {
+double objective(Matrix M, int row_index, int end_index) {
     double weights = 0;
     int A = 0;
     for(int i = row_index; i < M.num_rows; i ++){
@@ -221,7 +221,7 @@ MostFrequent mostfrequent(char *row, int rowLen) {
     return mf;
 }
 
-Matrix fly_down(Particle p, Matrix M, int stride=1)
+Matrix fly_down(Particle p, Matrix M, int stride)
 {
     Matrix M_new;
 
@@ -349,7 +349,7 @@ bool criteria3(Particle p, int new_index, Matrix M)
     return p.pos.num_cols != new_particle.pos.num_cols;
 }
 
-bool stopcriteria(Particle p, int newindex, Matrix M, int threshold, bool debug = false) {
+bool stopcriteria(Particle p, int newindex, Matrix M, int threshold, bool debug) {
     bool c2 = criteria2(p, threshold);
     bool c3 = criteria3(p, newindex, M);
     if (debug && c2) {
@@ -361,9 +361,10 @@ bool stopcriteria(Particle p, int newindex, Matrix M, int threshold, bool debug 
     return (c2 && c3);
 }
 
-std::vector<char> skip_missing(char **array) {
-    std::vector<char> without_missing = {};
-    for (char elem : array){
+std::vector<char> skip_missing(char *array, int length) {
+    std::vector<char> without_missing;
+    for (int i = 0; i < length; i++){
+        char elem = array[i];
         if (elem != '#'){
             without_missing.push_back(elem);
         }
@@ -383,7 +384,7 @@ Matrix copyMatrix(Matrix M){
 
     for (i = 0; i < matrix_copy.num_rows; i++)
     {
-        matrix_copy.matrix[i] = new char[M_new.num_cols];
+        matrix_copy.matrix[i] = new char[matrix_copy.num_cols];
     }
     for (i = 0; i < matrix_copy.num_rows; i++)
     {
@@ -419,31 +420,42 @@ void print_swarm(Swarm s)
     }
 }
 
+bool contains(int elem, int *list, int length){
+    for(int i = 0; i < length; i++){
+        if (list[i] == elem){
+            return true;
+        }
+    }
+
+    return false;
+}
+
 Particle *row_alignment(int index, Matrix M){
     char *row = M.matrix[index];
     int index_copy;
 
-    if aligned(row, M.num_cols){
+    if (aligned(row, M.num_cols)){
         return NULL;
     }
 
     Swarm swarm = create_swarm(index, M);
 
     Particle g = swarm.swarm[0];
+    float g_value;
+    float original_g_value = g_value = objective(M, index, index);
 
-    float original_g_value = g_value = objective(M, index, end_index = index);
-
-    for (Particle particle : swarm.swarm){
+    for (int swarm_index = 0; swarm_index < swarm.num_particles; swarm_index++){
+        Particle particle = swarm.swarm[swarm_index];
         index_copy = index;
         Matrix M_copy = copyMatrix(M);
 
-        particle.best_value = objective(M, index, end_index=index_copy);
+        particle.best_value = objective(M, index, index_copy);
 
         int max_len = 0;
 
-        for (int i=0; i < M_new.num_cols; i++){
-            if (std::find(std::begin(particle.pos.col), std::end(particle.pos.col), i) == std::end(array)){
-                int temp_len = skip_missing(column(M_copy, i)).size()
+        for (int i=0; i < M_copy.num_cols; i++){
+            if (!contains(i, particle.pos.col, M_copy.num_cols)){
+                int temp_len = skip_missing(column(M_copy, i), M_copy.num_rows).size();
                 if (temp_len > max_len){
                     max_len = temp_len;
                 }
@@ -478,7 +490,10 @@ Particle *row_alignment(int index, Matrix M){
         return NULL;
     }
 
-    return &g;
+    Particle *return_value = new Particle;
+    *return_value = g;
+
+    return return_value;
 }
 
 Matrix nest_msa_main(Matrix M){
@@ -523,7 +538,7 @@ int main(int argc, char** argv)
     Position p_pos;
     p_pos.row = 1;
     p_pos.num_cols = 3;
-    p_pos.col = new int[3] {0, 2, 3};
+    p_pos.col = (int[3]) {0, 2, 3};
     p.pos = p_pos;
 
 
