@@ -396,7 +396,30 @@ Matrix copyMatrix(Matrix M){
     return matrix_copy;
 }
 
-Position *row_alignment(int index, Matrix M){
+
+void print_swarm(Swarm s)
+{
+    for (int i = 0; i < s.num_particles; i++)
+    {
+        printf("Particle %d:\n", i + 1);
+        printf("\tValue:   %c\n", s.swarm[i].value);
+        printf("\tRow:     %d\n", s.swarm[i].pos.row);
+        printf("\tColumns: [");
+        for (int j = 0; j < s.swarm[i].pos.num_cols; j++)
+        {
+            if (j != s.swarm[i].pos.num_cols - 1)
+            {   
+                printf("%d, ", s.swarm[i].pos.col[j]);
+            }
+            else
+            {
+                printf("%d]\n\n", s.swarm[i].pos.col[j]);
+            }
+        }
+    }
+}
+
+Particle *row_alignment(int index, Matrix M){
     char *row = M.matrix[index];
     int index_copy;
 
@@ -458,27 +481,18 @@ Position *row_alignment(int index, Matrix M){
     return &g;
 }
 
-void print_swarm(Swarm s)
-{
-    for (int i = 0; i < s.num_particles; i++)
-    {
-        printf("Particle %d:\n", i + 1);
-        printf("\tValue:   %c\n", s.swarm[i].value);
-        printf("\tRow:     %d\n", s.swarm[i].pos.row);
-        printf("\tColumns: [");
-        for (int j = 0; j < s.swarm[i].pos.num_cols; j++)
-        {
-            if (j != s.swarm[i].pos.num_cols - 1)
-            {   
-                printf("%d, ", s.swarm[i].pos.col[j]);
-            }
-            else
-            {
-                printf("%d]\n\n", s.swarm[i].pos.col[j]);
-            }
+Matrix nest_msa_main(Matrix M){
+    for (int i = 0; i < M.num_rows; i++){
+        Particle *globaly_optimal = row_alignment(i, M);
+
+        if (globaly_optimal != NULL){
+            M = fly_down(*globaly_optimal, M, globaly_optimal->best.row - globaly_optimal->pos.row);
         }
     }
+
+    return M;
 }
+
 
 /*
 int main(){
