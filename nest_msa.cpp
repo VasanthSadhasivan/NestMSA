@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <map>
+#include <algorithm>
+#include <set>
+#include <iterator>
 
 void pretty_print_matrix(Matrix M)
 {
@@ -78,7 +81,7 @@ double weight(char *row, int rowLen, double w1, double w2, double w3) {
     return ((w1 * x) / rowLen);
 }
 
-double objective(Matrix M, int row_index, int end_index) {
+double objective(Matrix M, int row_index, int end_index=-1) {
     return 0;
 }
 
@@ -162,7 +165,7 @@ MostFrequent mostfrequent(char *row, int rowLen) {
     return mf;
 }
 
-Matrix fly_down(Particle p, Matrix M, int stride) 
+Matrix fly_down(Particle p, Matrix M, int stride=1)
 {
     Matrix M_new;
 
@@ -283,24 +286,113 @@ bool criteria3(Particle p, int new_index, Matrix M)
     return p.pos.num_cols != new_particle.pos.num_cols;
 }
 
-bool stopcriteria(Particle p, int newindex, Matrix M, int threshold, bool debug) {
+bool stopcriteria(Particle p, int newindex, Matrix M, int threshold, bool debug = false) {
     bool c2 = criteria2(p, threshold);
     bool c3 = criteria3(p, newindex, M);
     if (debug && c2) {
-        // print statement?
+       printf("Terminating because of criteria 2\n");
     }
     else if (debug && c3) {
-        // print statement?
+       printf("Terminating because of criteria 3\n");
     }
     return (c2 && c3);
 }
 
-Matrix skip_missing(Matrix M) {
-    Matrix mat;
-    return mat;
+std::vector<char> skip_missing(char **array) {
+    std::vector<char> without_missing = {};
+    for (char elem : array){
+        if (elem != '#'){
+            without_missing.push_back(elem);
+        }
+    }
+
+    return without_missing;
 }
 
-Particle row_alignment(int index, Matrix M) {
-    Particle p;
-    return p;
+Matrix copyMatrix(Matrix M){
+    int i, j;
+
+    Matrix matrix_copy;
+    matrix_copy.num_cols = M.num_cols;
+    matrix_copy.num_rows = M.num_rows;
+
+    matrix_copy.matrix = new char*[M.num_rows];
+
+    for (i = 0; i < matrix_copy.num_rows; i++)
+    {
+        matrix_copy.matrix[i] = new char[M_new.num_cols];
+    }
+    for (i = 0; i < matrix_copy.num_rows; i++)
+    {
+        for (j = 0; j < matrix_copy.num_cols; j++)
+        {
+            matrix_copy.matrix[i][j] = M.matrix[i][j];
+        }
+    }
+
+    return matrix_copy;
+}
+
+
+
+Position *row_alignment(int index, Matrix M){
+    char *row = M.matrix[index];
+    int index_copy;
+
+    if aligned(row, M.num_cols){
+        return NULL;
+    }
+
+    Swarm swarm = create_swarm(index, M);
+
+    Particle g = swarm.swarm[0];
+
+    float original_g_value = g_value = objective(M, index, end_index = index);
+
+    for (Particle particle : swarm.swarm){
+        index_copy = index;
+        Matrix M_copy = copyMatrix(M);
+
+        particle.best_value = objective(M, index, end_index=index_copy);
+
+        int max_len = 0;
+
+        for (int i=0; i < M_new.num_cols; i++){
+            if (std::find(std::begin(particle.pos.col), std::end(particle.pos.col), i) == std::end(array)){
+                int temp_len = skip_missing(column(M_copy, i)).size()
+                if (temp_len > max_len){
+                    max_len = temp_len;
+                }
+            }
+        }
+
+        int criteria_1 = max_len;
+
+        while(index_copy < criteria_1-1 && !(stopcriteria(particle, index_copy, M_copy))){
+            index_copy += 1;
+            particle.updated += 1;
+
+            M_copy = fly_down(particle, M_copy);
+
+            int score = objective(M_copy, index);
+
+            if (score >particle.best_value){
+                particle.best_value = score;
+                particle.updated = 0;
+            }
+
+            if (score > g_value){
+                g_value = score;
+                g = particle;
+                g.best = getposition(particle.value, index_copy, M_copy).pos;
+                g.best_value = score;
+            }
+        }
+    }
+
+    if (g_value == original_g_value){
+        return NULL;
+    }
+
+    return &g;
 }
