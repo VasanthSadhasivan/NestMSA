@@ -149,7 +149,7 @@ TEST_CASE("nest_msa_main() Test 5", "[nest_msa_main]") {
     int rows = M.num_rows;
     int cols = M.num_cols;
     CHECK(rows == 9);
-    CHECK(cols == 4);
+    CHECK(cols == 2);
     char correct[9][2] = {
         {'a', 'a'},
         {'b', 'b'},
