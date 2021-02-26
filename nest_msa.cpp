@@ -70,7 +70,6 @@ double weight(char *row, int rowLen, double w1, double w2, double w3) {
     }
 
     int most_freq_count = mostfrequent(row, rowLen).freq;
-
     if (aligned(row, rowLen)) {
         return ((w2 * most_freq_count) / rowLen);
     }
@@ -94,24 +93,21 @@ double objective(Matrix M, int row_index, int end_index) {
     MostFrequent mf = mostfrequent(M.matrix[row_index], M.num_cols);
     
     if(end_index == -1){
-        end_index = M.num_cols;
+        end_index = M.num_rows-1;
     }
-    if(end_index > M.num_cols){
+    if(end_index >= M.num_rows){
         printf("End index exceed matrix size\n");
         exit(1);
     }
     int gaps = 0;
-    for(int i = row_index; i < M.num_rows; i ++){
-        int row_emp = M.num_cols;
+    for(int i = row_index; i < end_index+1; i ++){
         for(int k = 0; k < M.num_cols; k++){
-            if(M.matrix[i][k] == '#'){
-                row_emp -= 1;
+            if(M.matrix[i][k] == '-'){
+                gaps += 1;
             }
         }
-        if(row_emp == 0){
-            gaps += 1;
-        }
     }
+    //printf("Gaps: %d row_index: %d endindex: %d\n", gaps, row_index, end_index);
     weights = weights * A * mf.freq;
     weights = weights / (1 + gaps);
     return weights;
@@ -191,6 +187,7 @@ Particle getposition(int value, int rowindex, Matrix M)
     Particle output_particle;
     output_particle.value = value;
     output_particle.pos = p;
+    output_particle.best = p;
     return output_particle;
 }
 
@@ -198,10 +195,14 @@ MostFrequent mostfrequent(char *row, int rowLen) {
     std::map<char, int> hashmap;
     for (int i = 0; i < rowLen; i++) {
         if (hashmap.find(row[i]) == hashmap.end()) {
-            hashmap[row[i]] = 1;
+            if (row[i] != '-'){
+                hashmap[row[i]] = 1;
+            }
         }
         else {
-            hashmap[row[i]]++;
+            if (row[i] != '-'){
+                hashmap[row[i]]++;
+            }
         }
     }
     int best_freq = 0;
@@ -287,7 +288,7 @@ bool aligned(char *row, int num_cols)
 {
     char first_c = row[0];
     int empty = 0;
-    if(first_c == '#'){
+    if(first_c == '#' || first_c == '-'){
         empty = 1;
     }
     for (int i = 1; i < num_cols; i++)
@@ -470,8 +471,10 @@ Particle *row_alignment(int index, Matrix M){
 
             M_copy = fly_down(particle, M_copy);
 
-            int score = objective(M_copy, index);
-
+            double score = objective(M_copy, index);
+            //printf("For particle: %c, index: %d SCORE: %f\n", particle.value, index_copy, score);
+            //pretty_print_matrix(M_copy);
+            //printf("\n");
             if (score >particle.best_value){
                 particle.best_value = score;
                 particle.updated = 0;
@@ -479,7 +482,9 @@ Particle *row_alignment(int index, Matrix M){
 
             if (score > g_value){
                 g_value = score;
-                g = particle;
+                g.value = particle.value;
+                g.updated = particle.updated;
+                g.pos = particle.pos;
                 g.best = getposition(particle.value, index_copy, M_copy).pos;
                 g.best_value = score;
             }
@@ -508,6 +513,30 @@ Matrix nest_msa_main(Matrix M){
     return M;
 }
 
+
+/*
+int main(){
+    const char *sequences[4];
+    sequences[0] = "abcbcdem";
+    sequences[1] = "acbcfg";
+    sequences[2] = "abchimn";
+    sequences[3] = "abcbcjkm";
+    Matrix M = create_peer_matrix(4, (char **)sequences);
+    printf("Before row alignment:\n");
+    pretty_print_matrix(M);
+    Particle *p = row_alignment(1, M);
+
+    printf("Particle %c, Position: [%d], Best: (%d, [%d, %d, %d, %d])\n",
+        p -> value,
+        p -> pos.col[0],
+        p -> best.row,
+        p -> best.col[0],
+        p -> best.col[1],
+        p -> best.col[2],
+        p -> best.col[3]
+    );
+    return 0;
+}*/
 
 /*
 int main(){

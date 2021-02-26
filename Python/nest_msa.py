@@ -44,7 +44,6 @@ def weight(row, w1=0.25, w2=0.5, w3=1.0):
 
     row_length = len(row)
     max = mostfrequent(row)[0]
-
     if aligned(row):
         return w2 * max / row_length
     else:
@@ -65,6 +64,8 @@ def objective(M, row_index, end_index=-1):
     gaps = 0
     for row in M[row_index:end_index+1]:
         gaps += row.count('-')
+
+    #print("Gaps:", gaps, "rowindex:",row_index, "endindex:", end_index)
 
     return weights * (A * C) / (1 + gaps)
 
@@ -197,8 +198,9 @@ def row_alignment(index, M):
             particle.updated += 1
 
             M_copy = fly_down(particle, M_copy)
-
             score = objective(M_copy, index)
+            #print("For particle:",particle.value, "index:", index_copy, "SCORE:", score)
+            #pretty_print_matrix(M_copy)
 
             if score > particle.best_value:
                 particle.best_value = score
@@ -225,3 +227,9 @@ def nest_msa_main(M):
             M = fly_down(globaly_optimal, M, globaly_optimal.best[0] - globaly_optimal.pos[0])
 
     return M
+
+'''sequences = ["abcbcdem", "acbcfg", "abchimn", "abcbcjkm"]
+
+matrix = create_peer_matrix(sequences)
+
+print(row_alignment(1, matrix))'''
