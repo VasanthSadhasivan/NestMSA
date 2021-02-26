@@ -11,8 +11,8 @@ TEST_CASE("row_alignment() Test 0", "[row_alignment]") {
     sequences[3] = "cbdd";
     sequences[4] = "dbde";
     Matrix M = create_peer_matrix(5, (char **)sequences);
-    Particle p = row_alignment(1, M);
-    CHECK(p.value == -1);
+    Particle *p = row_alignment(1, M);
+    CHECK(p == NULL);
 }
 
 TEST_CASE("row_alignment() Test 1", "[row_alignment]") {
@@ -36,7 +36,7 @@ TEST_CASE("row_alignment() Test 1", "[row_alignment]") {
         },
         .best_value = 9.0
     };
-    Particle p = row_alignment(1, M);
+    Particle p = *row_alignment(1, M);
     CHECK(p.value == correct.value);
     CHECK(p.best_value == correct.best_value);
     CHECK(p.pos.row == correct.pos.row);
@@ -54,6 +54,6 @@ TEST_CASE("row_alignment() Test 2", "[row_alignment]") {
     sequences[2] = "-bcd";
     sequences[3] = "abcd";
     Matrix M = create_peer_matrix(4, (char **)sequences);
-    Particle p = row_alignment(0, M);
-    CHECK(p.value == -1);
+    Particle *p = row_alignment(0, M);
+    CHECK(p == NULL);
 }
