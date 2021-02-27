@@ -65,7 +65,9 @@ def objective(M, row_index, end_index=-1):
     for row in M[row_index:end_index+1]:
         gaps += row.count('-')
 
-    #print("Gaps:", gaps, "rowindex:",row_index, "endindex:", end_index)
+    '''if (row_index == 5 and end_index == 10):
+        print("Gaps: %d row_index: %d endindex: %d, A: %d, weights: %f, C: %d" % (gaps, row_index, end_index, A, weights, C))
+        pretty_print_matrix(M)'''
 
     return weights * (A * C) / (1 + gaps)
 
@@ -184,6 +186,8 @@ def row_alignment(index, M):
     original_g_value = g_value = objective(M, index, end_index=index)
 
     for particle in swarm:
+        #print("Partice: %c, Index: %d" % (particle.value, index))
+
         index_copy = index
         M_copy = copy.deepcopy(M)
 
@@ -193,12 +197,19 @@ def row_alignment(index, M):
         max_len = max([len(skip_missing(column(M_copy, missinc_col))) for missinc_col in missing_p])
         criteria_1 = max_len
 
+        #print("criteria_1: %d, index: %d, index_copy: %d, particle: %c" % (criteria_1, index, index_copy, particle.value))
+        #pretty_print_matrix(M_copy)
+
         while index_copy < criteria_1-1 and not(stopcriteria(particle, index_copy, M_copy)):
             index_copy += 1
+
             particle.updated += 1
 
             M_copy = fly_down(particle, M_copy)
             score = objective(M_copy, index)
+            #if index == 7:
+            #    print("score: %f, index: %d" % (score, index))
+            #    pretty_print_matrix(M_copy)
             #print("For particle:",particle.value, "index:", index_copy, "SCORE:", score)
             #pretty_print_matrix(M_copy)
 
@@ -212,6 +223,10 @@ def row_alignment(index, M):
                 g.best = getposition(particle.value, index_copy, M_copy).pos
                 g.best_value = score
 
+            #print("criteria_1: %d, index: %d, index_copy: %d, particle: %c" % (criteria_1, index, index_copy, particle.value))
+            #pretty_print_matrix(M_copy)
+
+    #print("g_value: %f, index: %d" % (g_value, index))
     if g_value == original_g_value:
         return None
 
@@ -233,3 +248,7 @@ def nest_msa_main(M):
 matrix = create_peer_matrix(sequences)
 
 print(row_alignment(1, matrix))'''
+
+sequences = ["abbccdd", "abccdd", "abcdd","aabccdd","aabccc" ]
+matrix = create_peer_matrix(sequences)
+final = nest_msa_main(matrix)

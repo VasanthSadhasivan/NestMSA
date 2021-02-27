@@ -24,7 +24,7 @@ TEST_CASE("remove_missing_rows() Test 1", "[remove_missing_rows]") {
     sequences[0] = "abcbcde";
     sequences[1] = "acbcfg";
     sequences[2] = "abchimn";
-    sequences[3] = "abcbcjkm-";
+    sequences[3] = "abcbcjkm#";
     const char *sequences_correct[4];
     sequences_correct[0] = "abcbcde";
     sequences_correct[1] = "acbcfg";
@@ -44,12 +44,12 @@ TEST_CASE("remove_missing_rows() Test 2", "[remove_missing_rows]") {
     const char *sequences[4];
     sequences[0] = "abcbcde";
     sequences[1] = "acbcfg";
-    sequences[2] = "abchimn---";
-    sequences[3] = "abcbcjkm--";
+    sequences[2] = "abchimn###";
+    sequences[3] = "abcbcjkm##";
     const char *sequences_correct[4];
     sequences_correct[0] = "abcbcde";
     sequences_correct[1] = "acbcfg";
-    sequences_correct[2] = "abchimn-";
+    sequences_correct[2] = "abchimn#";
     sequences_correct[3] = "abcbcjkm";
     Matrix M = create_peer_matrix(4, (char **)sequences);
     Matrix correct = create_peer_matrix(4, (char **)sequences_correct);

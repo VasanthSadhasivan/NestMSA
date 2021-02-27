@@ -107,7 +107,11 @@ double objective(Matrix M, int row_index, int end_index) {
             }
         }
     }
-    //printf("Gaps: %d row_index: %d endindex: %d\n", gaps, row_index, end_index);
+    /*if (row_index == 5 && end_index == 10){
+        printf("Gaps: %d row_index: %d endindex: %d, A: %d, weights: %f, C: %d\n", gaps, row_index, end_index, A, weights, mf.freq);
+        //pretty_print_matrix(M);
+        //printf("\n");
+    }*/
     weights = weights * A * mf.freq;
     weights = weights / (1 + gaps);
     return weights;
@@ -137,7 +141,7 @@ Matrix remove_missing_rows(Matrix M) {
     for(int i = 0; i < M.num_rows; i++){
         int skip = 1;
         for(int j = 0; j < M.num_cols; j++){
-            if(M.matrix[i][j] != '#' && M.matrix[i][j] != '-'){
+            if(M.matrix[i][j] != '#'){
                 skip = 0;
                 break;
             }
@@ -157,6 +161,42 @@ Matrix remove_missing_rows(Matrix M) {
     }
     return mat;
 }
+/*
+Matrix remove_missing_rows(Matrix M) {
+    Matrix mat;
+    char** actualmat = new char*[M.num_rows];
+    mat.num_cols = M.num_cols;
+    mat.num_rows = 0;
+    for(int i = 0; i < M.num_rows; i++){
+        int skip = 1;
+        for(int j = 0; j < M.num_cols; j++){
+            if(M.matrix[i][j] != '#'){
+                skip = 0;
+                break;
+            }
+        }
+        if(!skip){
+            mat.num_rows += 1;
+            actualmat[mat.num_rows-1] = new char[mat.num_cols];
+
+            for(int j = 0; j < mat.num_cols; j++){
+                actualmat[mat.num_rows-1][j] = M.matrix[mat.num_rows-1][j];
+            }
+
+        }
+    }
+
+    for (int i = 0; i < mat.num_rows; i++)
+    {
+        actualmat[i] = new char[mat.num_cols];
+    }
+    mat.matrix = actualmat;
+    for(int i = 0; i < mat.num_rows; i++){
+        mat.matrix[i] = M.matrix[i];
+    }
+    return mat;
+}
+*/
 
 Particle getposition(int value, int rowindex, Matrix M)
 {
@@ -271,7 +311,15 @@ Matrix fly_down(Particle p, Matrix M, int stride)
         }
     }
 
-    return remove_missing_rows(M_new);
+    //printf("Before remove_missing_rows:\n");
+    //pretty_print_matrix(M_new);
+
+    Matrix return_value = remove_missing_rows(M_new);
+
+    //printf("After remove_missing_rows:\n");
+    //pretty_print_matrix(return_value);
+
+    return return_value;
 }
 
 char* column(Matrix M, int col_number) 
@@ -286,8 +334,9 @@ char* column(Matrix M, int col_number)
 
 bool aligned(char *row, int num_cols) 
 {
-    char first_c = row[0];
-    int empty = 0;
+    char first_c = 0;//row[0];
+    char first_empty_c = 0;
+    /*int empty = 0;
     if(first_c == '#' || first_c == '-'){
         empty = 1;
     }
@@ -298,7 +347,30 @@ bool aligned(char *row, int num_cols)
             return false;
         }
          
+    }*/
+
+    for (int i =0; i<num_cols; i++){
+        if (row[i] == '-' || row[i] == '#'){
+            if (first_empty_c == 0){
+                first_empty_c = row[i];
+            }else if(first_empty_c != row[i]){
+                return false;
+            }
+        }else{
+            if (first_c == 0){
+                first_c = row[i];
+            }else{
+                if (row[i] != first_c){
+                    return false;
+                }
+            }
+        }
     }
+
+    if (first_c == 0){
+        return false;
+    }
+
     return true;
 }
 
@@ -363,7 +435,9 @@ bool stopcriteria(Particle p, int newindex, Matrix M, int threshold, bool debug)
 }
 
 std::vector<char> skip_missing(char *array, int length) {
+
     std::vector<char> without_missing;
+
     for (int i = 0; i < length; i++){
         char elem = array[i];
         if (elem != '#'){
@@ -447,6 +521,8 @@ Particle *row_alignment(int index, Matrix M){
 
     for (int swarm_index = 0; swarm_index < swarm.num_particles; swarm_index++){
         Particle particle = swarm.swarm[swarm_index];
+        //printf("Partice: %c, Index: %d\n", particle.value, index);
+
         index_copy = index;
         Matrix M_copy = copyMatrix(M);
 
@@ -455,26 +531,48 @@ Particle *row_alignment(int index, Matrix M){
         int max_len = 0;
 
         for (int i=0; i < M_copy.num_cols; i++){
-            if (!contains(i, particle.pos.col, M_copy.num_cols)){
+
+            if (!contains(i, particle.pos.col, particle.pos.num_cols)){
+
                 int temp_len = skip_missing(column(M_copy, i), M_copy.num_rows).size();
                 if (temp_len > max_len){
                     max_len = temp_len;
                 }
+
             }
         }
+        /*printf("max_len: %d\n", max_len);
+        pretty_print_matrix(M_copy);
+        printf("\n");*/
 
         int criteria_1 = max_len;
+
+        //printf("criteria_1: %d, index: %d, index_copy: %d, particle: %c\n", criteria_1, index, index_copy, particle.value);
+        //pretty_print_matrix(M_copy);
+        //printf("\n");
 
         while(index_copy < criteria_1-1 && !(stopcriteria(particle, index_copy, M_copy))){
             index_copy += 1;
             particle.updated += 1;
 
+            //printf("criteria_1: %d, index: %d, index_copy: %d, particle: %c\n", criteria_1, index, index_copy, particle.value);
+            //printf("Before fly_down:\n");
+            //pretty_print_matrix(M_copy);
             M_copy = fly_down(particle, M_copy);
+            //printf("After fly_down:\n");
+            //pretty_print_matrix(M_copy);
+            //printf("\n");
 
             double score = objective(M_copy, index);
             //printf("For particle: %c, index: %d SCORE: %f\n", particle.value, index_copy, score);
             //pretty_print_matrix(M_copy);
             //printf("\n");
+
+            //if (index == 7){
+            //    printf("score: %f, index: %d\n", score, index);
+            //    pretty_print_matrix(M_copy);
+            //    printf("\n");
+            //}
             if (score >particle.best_value){
                 particle.best_value = score;
                 particle.updated = 0;
@@ -488,8 +586,11 @@ Particle *row_alignment(int index, Matrix M){
                 g.best = getposition(particle.value, index_copy, M_copy).pos;
                 g.best_value = score;
             }
+
         }
     }
+
+    //printf("g_value: %f, index: %d\n",g_value, index);
 
     if (g_value == original_g_value){
         return NULL;
@@ -513,6 +614,23 @@ Matrix nest_msa_main(Matrix M){
     return M;
 }
 
+/*
+int main(){
+    const char *sequences[5];
+    sequences[0] = "abbccdd";
+    sequences[1] = "abccdd";
+    sequences[2] = "abcdd";
+    sequences[3] = "aabccdd";
+    sequences[4] = "aabccc";
+    Matrix M = create_peer_matrix(5, (char **)sequences);
+    //printf("Before:\n");
+    //pretty_print_matrix(M);
+    Matrix final = nest_msa_main(M);
+    //printf("\nAfter:\n");
+    pretty_print_matrix(final);
+    return 0;
+}
+*/
 
 /*
 int main(){
