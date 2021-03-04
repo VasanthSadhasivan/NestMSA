@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <set>
 #include <iterator>
-#include <vector>
 
 void pretty_print_matrix(Matrix M)
 {
@@ -434,18 +433,18 @@ bool stopcriteria(Particle p, int newindex, Matrix M, int threshold, bool debug)
     return (c2 && c3);
 }
 
-std::vector<char> skip_missing(char *array, int length) {
+int skip_missing(char *array, int length) {
 
-    std::vector<char> without_missing;
+    int size = 0;
 
     for (int i = 0; i < length; i++){
         char elem = array[i];
         if (elem != '#'){
-            without_missing.push_back(elem);
+            size += 1;
         }
     }
 
-    return without_missing;
+    return size;
 }
 
 Matrix copyMatrix(Matrix M){
@@ -534,7 +533,7 @@ Particle *row_alignment(int index, Matrix M){
 
             if (!contains(i, particle.pos.col, particle.pos.num_cols)){
 
-                int temp_len = skip_missing(column(M_copy, i), M_copy.num_rows).size();
+                int temp_len = skip_missing(column(M_copy, i), M_copy.num_rows);
                 if (temp_len > max_len){
                     max_len = temp_len;
                 }

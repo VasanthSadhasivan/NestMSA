@@ -66,7 +66,7 @@ bool criteria2(Particle p, int threshold);
 
 bool stopcriteria(Particle p, int newindex, Matrix M, int threshold=5, bool debug=false);
 
-Matrix skip_missing(Matrix M);
+int skip_missing(Matrix M);
 
 Particle *row_alignment(int index, Matrix M);
 
