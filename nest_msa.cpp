@@ -504,101 +504,180 @@ bool contains(int elem, int *list, int length){
     return false;
 }
 
+Swarm *transfer_swarm(Swarm cpu_swarm){
+    Swarm *gpu_swarm;
+    Particle *gpu_particles;
+    int *temp_col;
+
+    hipMalloc(&gpu_particles, sizeof(Particle) * cpu_swarm.num_particles);
+
+    for(int i = 0; i < cpu_swarm.num_particles; i++){
+        hipMalloc(&temp_col, sizeof(int) * cpu_swarm.swarm[i].pos.num_cols);
+        hipMemcpy(temp_col, cpu_swarm.swarm[i].pos, sizeof(int) * cpu_swarm.swarm[i].pos.num_cols, hipMemcpyHostToDevice);
+        cpu_swarm.swarm[i].pos.col = temp_col;
+
+        hipMalloc(&temp_col, sizeof(int) * cpu_swarm.swarm[i].best.num_cols);
+        hipMemcpy(temp_col, cpu_swarm.swarm[i].best, sizeof(int) * cpu_swarm.swarm[i].best.num_cols, hipMemcpyHostToDevice);
+        cpu_swarm.swarm[i].best.col = temp_col;
+    }
+
+    hipMemcpy(gpu_particles, cpu_swarm.swarm, sizeof(Particle) * cpu_swarm.num_particles, hipMemcpyHostToDevice);
+
+    hipMalloc(&gpu_swarm, sizeof(Swarm));
+    cpu_swarm.swarm = gpu_particles;
+    hipMemcpy(gpu_swarm, &cpu_swarm, sizeof(Swarm), hipMemcpyHostToDevice);
+
+    return gpu_swarm;
+}
+
+Matrix *transfer_M(Matrix cpu_M){
+    Matrix *gpu_M;
+    char **gpu_matrix;
+
+    char **list_of_gpu_rows = malloc(sizeof(cpu_M.num_rows) * sizeof(char *));
+    for(int i = 0; i < cpu_M.num_rows; i++){
+        hipMalloc(&(list_of_gpu_rows[i]), sizeof(char) * cpu_M.num_cols);
+        hipMemcpy(list_of_gpu_rows[i], cpu_M.matrix[i], sizeof(char) * cpu_M.num_cols, hipMemcpyHostToDevice);
+    }
+
+    hipMalloc(&gpu_matrix, sizeof(cpu_M.num_rows) * sizeof(char *));
+    hipMemcpy(gpu_matrix, list_of_gpu_rows, sizeof(char *) * cpu_M.num_rows, hipMemcpyHostToDevice);
+
+    cpu_M.matrix = gpu_matrix;
+    hipMemcpy(gpu_M, &cpu_M, sizeof(Matrix), hipMemcpyHostToDevice);
+
+    return gpu_M;
+}
+
+GPU_Result *create_result_array(int size){
+    GPU_Result *result_array;
+    hipMalloc(&result_array, sizeof(GPU_Result) * size);
+
+    return result_array;
+}
+
+GPU_Result *transfer_result_array(GPU_Result *gpu_result_array, int size){
+    GPU_Result *result_array = (GPU_Result *) malloc(sizeof(GPU_Result) * size);
+
+    hipMemcpy(result_array, gpu_result_array, sizeof(GPU_Result) * size, hipMemcpyDeviceToHost);
+
+    for (int i = 0; i < size; i++){
+        result_array[i].g.pos.col = (int *) malloc(sizeof(int) * result_array[i].g.pos.num_cols);
+        hipMemcpy(result_array[i].g.pos.col, result_array[i].g.pos.col, sizeof(int) * result_array[i].g.pos.num_cols, hipMemcpyDeviceToHost);
+
+        result_array[i].g.best.col = (int *) malloc(sizeof(int) * result_array[i].g.best.num_cols);
+        hipMemcpy(result_array[i].g.best.col, result_array[i].g.best.col, sizeof(int) * result_array[i].g.best.num_cols, hipMemcpyDeviceToHost);
+    }
+
+    return result_array;
+}
+
+GPU_Result find_best_result(GPU_result *result_array, int size){
+    GPU_Result best_result = result_array[0];
+
+    for (int i = 1; i < size; i ++){
+        if (result_array[i].g_value > best_result.g_value){
+            best_result = result_array[i];
+        }
+    }
+
+    return best_result;
+}
+
+
 Particle *row_alignment(int index, Matrix M){
     char *row = M.matrix[index];
     int index_copy;
+    Swarm swarm;
+    Particle g;
+    float g_value;
+    float original_g_value;
+    GPU_Result *result_array;
+    GPU_Result best_result;
+
+    Swarm *gpu_swarm;
+    Matrix *gpu_M;
+    GPU_Result *gpu_result_array;
 
     if (aligned(row, M.num_cols)){
         return NULL;
     }
 
-    Swarm swarm = create_swarm(index, M);
+    swarm = create_swarm(index, M);
+    g = swarm.swarm[0];
+    original_g_value = g_value = objective(M, index, index);
 
-    Particle g = swarm.swarm[0];
-    float g_value;
-    float original_g_value = g_value = objective(M, index, index);
+    gpu_swarm = transfer_swarm(swarm);
+    gpu_M = transfer_M(M);
+    gpu_result_array = create_result_array(swarm.num_particles);
 
-    for (int swarm_index = 0; swarm_index < swarm.num_particles; swarm_index++){
-        Particle particle = swarm.swarm[swarm_index];
-        //printf("Partice: %c, Index: %d\n", particle.value, index);
-
-        index_copy = index;
-        Matrix M_copy = copyMatrix(M);
-
-        particle.best_value = objective(M, index, index_copy);
-
-        int max_len = 0;
-
-        for (int i=0; i < M_copy.num_cols; i++){
-
-            if (!contains(i, particle.pos.col, particle.pos.num_cols)){
-
-                int temp_len = skip_missing(column(M_copy, i), M_copy.num_rows);
-                if (temp_len > max_len){
-                    max_len = temp_len;
-                }
-
-            }
-        }
-        /*printf("max_len: %d\n", max_len);
-        pretty_print_matrix(M_copy);
-        printf("\n");*/
-
-        int criteria_1 = max_len;
-
-        //printf("criteria_1: %d, index: %d, index_copy: %d, particle: %c\n", criteria_1, index, index_copy, particle.value);
-        //pretty_print_matrix(M_copy);
-        //printf("\n");
-
-        while(index_copy < criteria_1-1 && !(stopcriteria(particle, index_copy, M_copy))){
-            index_copy += 1;
-            particle.updated += 1;
-
-            //printf("criteria_1: %d, index: %d, index_copy: %d, particle: %c\n", criteria_1, index, index_copy, particle.value);
-            //printf("Before fly_down:\n");
-            //pretty_print_matrix(M_copy);
-            M_copy = fly_down(particle, M_copy);
-            //printf("After fly_down:\n");
-            //pretty_print_matrix(M_copy);
-            //printf("\n");
-
-            double score = objective(M_copy, index);
-            //printf("For particle: %c, index: %d SCORE: %f\n", particle.value, index_copy, score);
-            //pretty_print_matrix(M_copy);
-            //printf("\n");
-
-            //if (index == 7){
-            //    printf("score: %f, index: %d\n", score, index);
-            //    pretty_print_matrix(M_copy);
-            //    printf("\n");
-            //}
-            if (score >particle.best_value){
-                particle.best_value = score;
-                particle.updated = 0;
-            }
-
-            if (score > g_value){
-                g_value = score;
-                g.value = particle.value;
-                g.updated = particle.updated;
-                g.pos = particle.pos;
-                g.best = getposition(particle.value, index_copy, M_copy).pos;
-                g.best_value = score;
-            }
-
-        }
+    if (swarm.num_particles % BLOCK_SIZE == 0) {
+        hipLaunchKernelGGL(MyKernel, dim3(swarm.num_particles/BLOCK_SIZE), dim3(BLOCK_SIZE), 0, 0,
+        gpu_M, gpu_swarm, index, gpu_result_array, g_value);
+    } else{
+        hipLaunchKernelGGL(MyKernel, dim3(swarm.num_particles/BLOCK_SIZE + 1), dim3(BLOCK_SIZE), 0, 0,
+        gpu_M, gpu_swarm, index, gpu_result_array, g_value);
     }
 
-    //printf("g_value: %f, index: %d\n",g_value, index);
+    result_array = transfer_result_array(gpu_result_array, swarm.num_particles);
 
-    if (g_value == original_g_value){
+    best_result = find_best_result(result_array, swarm.num_particles);
+
+    if (best_result.g_value == original_g_value){
         return NULL;
     }
 
-    Particle *return_value = new Particle;
-    *return_value = g;
+    return &best_res;
+}
 
-    return return_value;
+__global__ void MyKernel(Matrix *M_copy_p, Swarm *swarm, int index, GPU_Result *result_array, double g_value) {
+    Particle particle = swarm -> swarm[thread_index];
+    Particle g;
+    int index_copy = index;
+    Matrix M_copy = *M_copy_p;
+
+    particle.best_value = objective(M_copy, index, index_copy);
+
+    int max_len = 0;
+
+    for (int i=0; i < M_copy.num_cols; i++){
+
+        if (!contains(i, particle.pos.col, particle.pos.num_cols)){
+
+            int temp_len = skip_missing(column(M_copy, i), M_copy.num_rows);
+            if (temp_len > max_len){
+                max_len = temp_len;
+            }
+
+        }
+    }
+
+    int criteria_1 = max_len;
+
+    while(index_copy < criteria_1-1 && !(stopcriteria(particle, index_copy, M_copy))){
+        index_copy += 1;
+        particle.updated += 1;
+        M_copy = fly_down(particle, M_copy);
+
+        double score = objective(M_copy, index);
+
+        if (score > particle.best_value){
+            particle.best_value = score;
+            particle.updated = 0;
+        }
+
+        if (score > g_value){
+            g_value = score;
+            g.value = particle.value;
+            g.updated = particle.updated;
+            g.pos = particle.pos;
+            g.best = getposition(particle.value, index_copy, M_copy).pos;
+            g.best_value = score;
+        }
+    }
+
+    result_array[thread_index].g_value = g_value;
+    result_array[thread_index].g = g;
 }
 
 Matrix nest_msa_main(Matrix M){

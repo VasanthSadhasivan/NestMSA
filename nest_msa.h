@@ -1,5 +1,12 @@
 #ifndef NEST_MSA_H
 #define NEST_MSA_H
+#define BLOCK_SIZE 256
+
+struct GPU_Result
+{
+    Particle g;
+    double g_value;
+}
 
 struct Matrix
 {
