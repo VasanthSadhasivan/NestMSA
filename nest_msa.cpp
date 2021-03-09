@@ -149,7 +149,7 @@ Matrix remove_missing_rows(Matrix M) {
             mat.num_rows += 1;
         }
     }
-    char** actualmat = new char*[mat.num_rows];
+    char** actualmat = (char **) malloc(sizeof(char*) * mat.num_rows);
     for (int i = 0; i < mat.num_rows; i++)
     {
         actualmat[i] = new char[mat.num_cols];
@@ -282,9 +282,9 @@ Matrix fly_down(Particle p, Matrix M, int stride)
     }
     for (int i = M.num_rows; i < M_new.num_rows; i++)
     {
-        for (int j = 0; j < M.num_rows; j++)
+        for (int j = 0; j < M.num_cols; j++)
         {
-            M_new.matrix[i][j] = '#';;
+            M_new.matrix[i][j] = '#';
         }
     }
 
