@@ -149,7 +149,7 @@ Matrix remove_missing_rows(Matrix M) {
             mat.num_rows += 1;
         }
     }
-    char** actualmat = new char*[mat.num_rows];
+    char** actualmat = (char **) malloc(sizeof(char*) * mat.num_rows);
     for (int i = 0; i < mat.num_rows; i++)
     {
         actualmat[i] = new char[mat.num_cols];
@@ -282,9 +282,9 @@ Matrix fly_down(Particle p, Matrix M, int stride)
     }
     for (int i = M.num_rows; i < M_new.num_rows; i++)
     {
-        for (int j = 0; j < M.num_rows; j++)
+        for (int j = 0; j < M.num_cols; j++)
         {
-            M_new.matrix[i][j] = '#';;
+            M_new.matrix[i][j] = '#';
         }
     }
 
@@ -613,23 +613,20 @@ Matrix nest_msa_main(Matrix M){
     return M;
 }
 
-/*
+
 int main(){
     const char *sequences[5];
-    sequences[0] = "abbccdd";
-    sequences[1] = "abccdd";
-    sequences[2] = "abcdd";
-    sequences[3] = "aabccdd";
-    sequences[4] = "aabccc";
-    Matrix M = create_peer_matrix(5, (char **)sequences);
-    //printf("Before:\n");
-    //pretty_print_matrix(M);
+    sequences[0] = "abcdfghijklmnopqaskdhaskjdhasjkdhasjkdhasjkhdakjshdkjasdhaskjdh";
+    sequences[1] = "abcdefghijklmnopqaskdhaskjdhasjkdhasjkdhasjkhdakjshdkjasdhaskjdh";
+    Matrix M = create_peer_matrix(2, (char **)sequences);
+    printf("Before:\n");
+    pretty_print_matrix(M);
     Matrix final = nest_msa_main(M);
-    //printf("\nAfter:\n");
+    printf("\nAfter:\n");
     pretty_print_matrix(final);
     return 0;
 }
-*/
+
 
 /*
 int main(){
