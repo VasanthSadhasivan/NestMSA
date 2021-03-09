@@ -627,10 +627,11 @@ Particle *row_alignment(int index, Matrix M){
         return NULL;
     }
 
-    return &best_res;
+    return &(best_result.g);
 }
 
 __global__ void MyKernel(Matrix *M_copy_p, Swarm *swarm, int index, GPU_Result *result_array, double g_value) {
+    //TODO Set thread index
     Particle particle = swarm -> swarm[thread_index];
     Particle g;
     int index_copy = index;
