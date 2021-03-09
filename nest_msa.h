@@ -2,12 +2,6 @@
 #define NEST_MSA_H
 #define BLOCK_SIZE 256
 
-struct GPU_Result
-{
-    Particle g;
-    double g_value;
-}
-
 struct Matrix
 {
     int num_cols;
@@ -29,6 +23,12 @@ struct Particle
     Position pos;
     Position best;
     double best_value;
+};
+
+struct GPU_Result
+{
+    Particle g;
+    double g_value;
 };
 
 struct MostFrequent
