@@ -25,11 +25,11 @@ struct Particle
     double best_value;
 };
 
-struct GPU_Result
+typedef struct GPU_Res
 {
     Particle g;
     double g_value;
-};
+}GPU_Result;
 
 struct MostFrequent
 {
