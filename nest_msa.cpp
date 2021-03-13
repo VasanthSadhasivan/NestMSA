@@ -613,12 +613,14 @@ Matrix nest_msa_main(Matrix M){
     return M;
 }
 
-
 int main(){
-    const char *sequences[2];
-    sequences[0] = "abcdfghijklmnopqaskdhaskjdhasjkdhasjkdhasjkhdakjshdkjasdhaskjdh";
-    sequences[1] = "abcdefghijklmnopqaskdhaskjdhasjkdhasjkdhasjkhdakjshdkjasdhaskjdh";
-    Matrix M = create_peer_matrix(2, (char **)sequences);
+    const char *sequences[5];
+    sequences[0] = "abbccdd";
+    sequences[1] = "abccdd";
+    sequences[2] = "abcdd";
+    sequences[3] = "aabccdd";
+    sequences[4] = "aabccc";
+    Matrix M = create_peer_matrix(5, (char **)sequences);
     printf("Before:\n");
     pretty_print_matrix(M);
     Matrix final = nest_msa_main(M);
@@ -626,7 +628,6 @@ int main(){
     pretty_print_matrix(final);
     return 0;
 }
-
 
 /*
 int main(){
