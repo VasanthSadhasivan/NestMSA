@@ -1,10 +1,10 @@
 #ifndef NEST_MSA_H
 #define NEST_MSA_H
-#define BLOCK_SIZE 256
+#define BLOCK_SIZE 64
 
 //#define MAX_COL 120
-#define MAX_COL 10
-#define MAX_ROW 15
+#define MAX_COL 100
+#define MAX_ROW 100
 
 
 
@@ -89,6 +89,6 @@ Matrix nest_msa_main(Matrix M);
 
 Swarm *transfer_swarm(Swarm cpu_swarm);
 
-__global__ void MyKernel(Matrix *M_copy_p, Swarm *swarm, int index, GPU_Result *result_array, double g_value, int max_threads);
+__global__ void MyKernel(Matrix *M_copy_p_in, Matrix *gpu_matrix_matrix, Swarm *swarm, int index, GPU_Result **result_matrix, double g_value);
 
 #endif
