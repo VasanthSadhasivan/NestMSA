@@ -3,7 +3,7 @@
 #define BLOCK_SIZE 256
 
 #define MAX_COL 10
-#define MAX_ROW 10
+#define MAX_ROW 15
 
 
 
@@ -48,7 +48,7 @@ struct Swarm
     Particle swarm[MAX_COL];
 };
 
-void pretty_print_matrix(Matrix M);
+__device__ __host__ void pretty_print_matrix(Matrix M);
 
 Matrix create_peer_matrix(int strArrayLen, char **strArray);
 
@@ -79,6 +79,8 @@ __device__ bool criteria2(Particle p, int threshold);
 __device__ bool stopcriteria(Particle p, int newindex, Matrix M, int threshold=5, bool debug=false);
 
 __device__ int skip_missing(Matrix M, int col, int length);
+
+__device__ __host__ void print_swarm(Swarm s);
 
 Particle *row_alignment(int index, Matrix M);
 

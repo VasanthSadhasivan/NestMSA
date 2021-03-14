@@ -7,7 +7,7 @@
 #include <iterator>
 #include "hip/hip_runtime.h"
 
-void pretty_print_matrix(Matrix M)
+__device__ __host__ void pretty_print_matrix(Matrix M)
 {
     for (int i = 0; i < M.num_rows; i++)
     {
@@ -19,6 +19,7 @@ void pretty_print_matrix(Matrix M)
                 printf("%c\n", M.matrix[i][j]);
         }
     }
+    printf("\n");
 }
 
 Matrix create_peer_matrix(int strArrayLen, char **strArray)
@@ -460,7 +461,7 @@ Matrix copyMatrix(Matrix M){
 }
 
 
-void print_swarm(Swarm s)
+__device__ __host__ void print_swarm(Swarm s)
 {
     for (int i = 0; i < s.num_particles; i++)
     {
@@ -579,7 +580,7 @@ Particle *row_alignment(int index, Matrix M){
     result_array = transfer_result_array(gpu_result_array, swarm.num_particles);
 
     best_result = find_best_result(result_array, swarm.num_particles);
-
+    //printf("g_value: %f, index: %d\n", best_result.g_value, index);
     if (best_result.g_value == original_g_value){
         return NULL;
     }
@@ -592,12 +593,12 @@ Particle *row_alignment(int index, Matrix M){
 __global__ void MyKernel(Matrix *M_copy_p, Swarm *swarm, int index, GPU_Result *result_array, double g_value, int max_threads) {
     //TODO Set thread index
     int thread_index;
-    Particle particle = swarm -> swarm[thread_index];
     Particle g;
     int index_copy = index;
     Matrix M_copy = *M_copy_p;
     
     thread_index = hipThreadIdx_x + (hipBlockIdx_x * BLOCK_SIZE);
+    Particle particle = swarm -> swarm[thread_index];
     
     if (thread_index >= max_threads){
         return;
@@ -624,9 +625,15 @@ __global__ void MyKernel(Matrix *M_copy_p, Swarm *swarm, int index, GPU_Result *
     
 
     int criteria_1 = max_len;
+    //if (thread_index == 0){
+    //    printf("index: %d, thread_index: %d, particle.value: %c\n", index, thread_index, particle.value);
+    //    print_swarm(*swarm);
+    //}
     
-
-    
+    //if (index == 3 && particle.value == 'b'){
+    //    printf("criteria_1: %d, index: %d, index_copy: %d, particle: %c\n" ,criteria_1, index, index_copy, particle.value);
+    //    pretty_print_matrix(M_copy);
+    //}
     while(index_copy < criteria_1-1 && !(stopcriteria(particle, index_copy, M_copy))){
         index_copy += 1;
         particle.updated += 1;
@@ -634,7 +641,10 @@ __global__ void MyKernel(Matrix *M_copy_p, Swarm *swarm, int index, GPU_Result *
         M_copy = fly_down(particle, M_copy);
 
         double score = objective(M_copy, index);
-
+        //if (index == 3 && particle.value == 'b'){
+        //    printf("score: %f\n" , score);
+        //    pretty_print_matrix(M_copy);
+        //}
         if (score > particle.best_value){
             particle.best_value = score;
             particle.updated = 0;
@@ -655,6 +665,7 @@ __global__ void MyKernel(Matrix *M_copy_p, Swarm *swarm, int index, GPU_Result *
 
 Matrix nest_msa_main(Matrix M){
     for (int i = 0; i < M.num_rows; i++){
+        //pretty_print_matrix(M);
         Particle *globaly_optimal = row_alignment(i, M);
 
         if (globaly_optimal != NULL){
@@ -674,10 +685,10 @@ int main(){
     sequences[3] = "aabccdd";
     sequences[4] = "aabccc";
     Matrix M = create_peer_matrix(5, (char **)sequences);
-    printf("Before:\n");
-    pretty_print_matrix(M);
+    //printf("Before:\n");
+    //pretty_print_matrix(M);
     Matrix final = nest_msa_main(M);
-    printf("\nAfter:\n");
+    //printf("\nAfter:\n");
     pretty_print_matrix(final);
     return 0;
 }

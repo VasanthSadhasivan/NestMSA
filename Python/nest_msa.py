@@ -197,8 +197,9 @@ def row_alignment(index, M):
         max_len = max([len(skip_missing(column(M_copy, missinc_col))) for missinc_col in missing_p])
         criteria_1 = max_len
 
-        #print("criteria_1: %d, index: %d, index_copy: %d, particle: %c" % (criteria_1, index, index_copy, particle.value))
-        #pretty_print_matrix(M_copy)
+        #if index ==3 and particle.value == 'b':
+        #    print("criteria_1: %d, index: %d, index_copy: %d, particle: %c" % (criteria_1, index, index_copy, particle.value))
+        #    pretty_print_matrix(M_copy)
 
         while index_copy < criteria_1-1 and not(stopcriteria(particle, index_copy, M_copy)):
             index_copy += 1
@@ -207,6 +208,9 @@ def row_alignment(index, M):
 
             M_copy = fly_down(particle, M_copy)
             score = objective(M_copy, index)
+            #if index ==3 and particle.value == 'b':
+            #    print("score: %f" % (score))
+            #    pretty_print_matrix(M_copy)
             #if index == 7:
             #    print("score: %f, index: %d" % (score, index))
             #    pretty_print_matrix(M_copy)
@@ -236,6 +240,7 @@ def row_alignment(index, M):
 def nest_msa_main(M):
 
     for i in range(len(M)):
+        #pretty_print_matrix(M)
         globaly_optimal = row_alignment(i, M)
 
         if globaly_optimal:
