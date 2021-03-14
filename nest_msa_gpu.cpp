@@ -679,11 +679,11 @@ __global__ void MyKernel(Matrix *M_copy_p_in, Matrix *gpu_input_matrix, Swarm *s
     //}
 
     index_copy = index_copy + thread_flydown_index;
-    if (index == 3 && thread_index == 13){
-        printf("particle.value: %c, index_copy: %d, particle.updated: %d, particle.best_value: %f\n", particle.value, index_copy, particle.updated, particle.best_value);
-        pretty_print_matrix(M_copy_p);
-        printf("cond: %d\n", stopcriteria(&particle, index_copy, M_copy_p));
-    }
+    //if (index == 3 && thread_index == 13){
+    //    printf("particle.value: %c, index_copy: %d, particle.updated: %d, particle.best_value: %f\n", particle.value, index_copy, particle.updated, particle.best_value);
+    //    pretty_print_matrix(M_copy_p);
+    //    printf("cond: %d\n", stopcriteria(&particle, index_copy, M_copy_p));
+    //}
     if (index_copy  < criteria_1-1 && !(stopcriteria(&particle, index_copy, M_copy_p))){
         
         index_copy += 1;
@@ -758,11 +758,13 @@ Matrix nest_msa_main(Matrix M){
 
 
 int main(){
-    const char *sequences[2];
-    sequences[0] = "aaab";
-    sequences[1] = "aab";
-
-    Matrix M = create_peer_matrix(2, (char **)sequences);
+    const char *sequences[5];
+    sequences[0] = "abbccdd";
+    sequences[1] = "abccdd";
+    sequences[2] = "abcdd";
+    sequences[3] = "aabccdd";
+    sequences[4] = "aabccc";
+    Matrix M = create_peer_matrix(5, (char **)sequences);
     printf("Before:\n");
     pretty_print_matrix(&M);
     Matrix final = nest_msa_main(M);
