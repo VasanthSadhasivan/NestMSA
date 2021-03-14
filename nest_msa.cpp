@@ -613,6 +613,7 @@ Matrix nest_msa_main(Matrix M){
     return M;
 }
 
+/*
 int main(){
     const char *sequences[5];
     sequences[0] = "abbccdd";
@@ -628,7 +629,7 @@ int main(){
     pretty_print_matrix(final);
     return 0;
 }
-
+*/
 /*
 int main(){
     const char *sequences[4];

@@ -7,7 +7,7 @@ HIPCC=$(HIP_PATH)/bin/hipcc
 
 TARGET=hcc
 
-SOURCES = nest_msa_gpu.cpp
+SOURCES = nest_msa_gpu.cpp main_gpu.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 
 EXECUTABLE=./nest_msa_gpu
