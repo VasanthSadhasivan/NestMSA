@@ -2,6 +2,7 @@
 #define NEST_MSA_H
 #define BLOCK_SIZE 256
 
+//#define MAX_COL 120
 #define MAX_COL 10
 #define MAX_ROW 15
 
@@ -48,39 +49,39 @@ struct Swarm
     Particle swarm[MAX_COL];
 };
 
-__device__ __host__ void pretty_print_matrix(Matrix M);
+__device__ __host__ void pretty_print_matrix(Matrix *M);
 
 Matrix create_peer_matrix(int strArrayLen, char **strArray);
 
-__device__ __host__ double weight(Matrix M, int row_index, int rowLen, bool test = false, double w1=0.25, double w2=0.5, double w3=1.0);
+__device__ __host__ double weight(Matrix *M, int row_index, int rowLen, bool test = false, double w1=0.25, double w2=0.5, double w3=1.0);
 
-__device__ __host__ double objective(Matrix M, int row_index, int end_index=-1, bool test=false);
+__device__ __host__ double objective(Matrix *M, int row_index, int end_index=-1, bool test=false);
 
-__device__ __host__ bool full_row(Matrix M, int row_index, int rowLen, bool test=false);
+__device__ __host__ bool full_row(Matrix *M, int row_index, int rowLen, bool test=false);
 
-__device__ __host__ Matrix remove_missing_rows(Matrix M);
+__device__ __host__ void remove_missing_rows(Matrix *M, Matrix *ret_M);
 
-__device__ __host__  Particle getposition(int value, int rowindex, Matrix M);
+__device__ __host__  void getposition(int value, int rowindex, Matrix *M, Particle *particle_ret);
 
-__device__ __host__ MostFrequent mostfrequent(Matrix M, int row_index, int rowLen);
+__device__ __host__ MostFrequent mostfrequent(Matrix *M, int row_index, int rowLen);
 
-__device__ __host__ Matrix fly_down(Particle p, Matrix M, int stride=1);
+__device__ __host__ void fly_down(Particle *p, Matrix *M, Matrix *matrix_ret, int stride=1, bool test=false);
 
-__device__ char *column(Matrix M, int i);
+__device__ char *column(Matrix *M, int i);
 
-__host__ __device__ bool aligned(Matrix M, int row_index, int rowLen);
+__host__ __device__ bool aligned(Matrix *M, int row_index, int rowLen);
 
-__host__ __device__ Swarm create_swarm(int index, Matrix M);
+__host__ __device__ Swarm create_swarm(int index, Matrix *M);
 
-__device__ bool criteria3(Particle p, int new_index, Matrix M);
+__device__ bool criteria3(Particle *p, int new_index, Matrix *M);
 
-__device__ bool criteria2(Particle p, int threshold);
+__device__ bool criteria2(Particle *p, int threshold);
 
-__device__ bool stopcriteria(Particle p, int newindex, Matrix M, int threshold=5, bool debug=false);
+__device__ bool stopcriteria(Particle *p, int newindex, Matrix *M, int threshold=5, bool debug=false);
 
-__device__ int skip_missing(Matrix M, int col, int length);
+__device__ int skip_missing(Matrix *M, int col, int length);
 
-__device__ __host__ void print_swarm(Swarm s);
+__device__ __host__ void print_swarm(Swarm *s);
 
 Particle *row_alignment(int index, Matrix M);
 

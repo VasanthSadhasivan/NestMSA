@@ -7,16 +7,16 @@
 #include <iterator>
 #include "hip/hip_runtime.h"
 
-__device__ __host__ void pretty_print_matrix(Matrix M)
+__device__ __host__ void pretty_print_matrix(Matrix *M)
 {
-    for (int i = 0; i < M.num_rows; i++)
+    for (int i = 0; i < (*M).num_rows; i++)
     {
-        for (int j = 0; j < M.num_cols; j++)
+        for (int j = 0; j < (*M).num_cols; j++)
         {
-            if (j + 1 != M.num_cols)
-                printf("%c ", M.matrix[i][j]);
+            if (j + 1 != (*M).num_cols)
+                printf("%c ", (*M).matrix[i][j]);
             else
-                printf("%c\n", M.matrix[i][j]);
+                printf("%c\n", (*M).matrix[i][j]);
         }
     }
     printf("\n");
@@ -62,7 +62,7 @@ Matrix create_peer_matrix(int strArrayLen, char **strArray)
     return M;
 }
 
-__device__ __host__ double weight(Matrix M, int row_index, int rowLen, bool test, double w1, double w2, double w3) {
+__device__ __host__ double weight(Matrix *M, int row_index, int rowLen, bool test, double w1, double w2, double w3) {
     
     if (full_row(M, row_index, rowLen, test)) {
         return w3;
@@ -84,34 +84,34 @@ __device__ __host__ double weight(Matrix M, int row_index, int rowLen, bool test
     return ((w1 * x) / rowLen);
 }
 
-__device__ __host__ double objective(Matrix M, int row_index, int end_index, bool test) {
+__device__ __host__ double objective(Matrix *M, int row_index, int end_index, bool test) {
     double weights = 0;
     int A = 0;
     
-    for(int i = row_index; i < M.num_rows; i ++){
-        weights += weight(M, i, M.num_cols);
+    for(int i = row_index; i < (*M).num_rows; i ++){
+        weights += weight(M, i, (*M).num_cols);
         
-        if(aligned(M, i, M.num_cols)){
+        if(aligned(M, i, (*M).num_cols)){
             A += 1;
         }
         
     }
     
 
-    MostFrequent mf = mostfrequent(M, row_index, M.num_cols);
+    MostFrequent mf = mostfrequent(M, row_index, (*M).num_cols);
     
     if(end_index == -1){
-        end_index = M.num_rows-1;
+        end_index = (*M).num_rows-1;
     }
-    if(end_index >= M.num_rows){
+    if(end_index >= (*M).num_rows){
         printf("End index exceed matrix size\n");
         return -1;
     }
     
     int gaps = 0;
     for(int i = row_index; i < end_index+1; i ++){
-        for(int k = 0; k < M.num_cols; k++){
-            if(M.matrix[i][k] == '-'){
+        for(int k = 0; k < (*M).num_cols; k++){
+            if((*M).matrix[i][k] == '-'){
                 gaps += 1;
             }
         }
@@ -121,20 +121,24 @@ __device__ __host__ double objective(Matrix M, int row_index, int end_index, boo
         //pretty_print_matrix(M);
         //printf("\n");
     }*/
-    
+    //if (test)
+    //    pretty_print_matrix(M);
+    //printf("weights: %f, A: %d,  mf.freq: %d, gaps: %d\n", weights, A, mf.freq, gaps);
     weights = weights * A * mf.freq;
     weights = weights / (1 + gaps);
+    
+    //printf("gaps: %d\n", gaps);
     return weights;
 }
 
-__device__ __host__ bool full_row(Matrix M, int row_index, int rowLen, bool test) {
+__device__ __host__ bool full_row(Matrix *M, int row_index, int rowLen, bool test) {
     if (rowLen <= 0) {
         return false;
     }
 
-    char first_c = M.matrix[row_index][0];
+    char first_c = (*M).matrix[row_index][0];
     for (int i = 1; i < rowLen; i++) {
-        if (first_c != M.matrix[row_index][i]) {
+        if (first_c != (*M).matrix[row_index][i]) {
             return false;
         }
     }
@@ -144,28 +148,26 @@ __device__ __host__ bool full_row(Matrix M, int row_index, int rowLen, bool test
     return true;
 }
 
-__device__ __host__ Matrix remove_missing_rows(Matrix M) {
-    Matrix mat;
-
-    mat.num_cols = M.num_cols;
-    mat.num_rows = 0;
-    for(int i = 0; i < M.num_rows; i++){
+__device__ __host__ void remove_missing_rows(Matrix *M, Matrix *ret_M) {
+    (*ret_M).num_cols = (*M).num_cols;
+    (*ret_M).num_rows = 0;
+    for(int i = 0; i < (*M).num_rows; i++){
         int skip = 1;
-        for(int j = 0; j < M.num_cols; j++){
-            if(M.matrix[i][j] != '#'){
+        for(int j = 0; j < (*M).num_cols; j++){
+            if((*M).matrix[i][j] != '#'){
                 skip = 0;
                 break;
             }
         }
         if(!skip){
-            mat.num_rows += 1;
+            (*ret_M).num_rows += 1;
         }
     }
 
-    for(int i = 0; i < mat.num_rows; i++){
-        memcpy(mat.matrix[i], M.matrix[i], MAX_COL);
+    for(int i = 0; i < (*ret_M).num_rows; i++){
+        memcpy((*ret_M).matrix[i],(*M).matrix[i], MAX_COL);
     }
-    return mat;
+    return;
 }
 /*
 Matrix remove_missing_rows(Matrix M) {
@@ -204,43 +206,39 @@ Matrix remove_missing_rows(Matrix M) {
 }
 */
 
-__device__ __host__ Particle getposition(int value, int rowindex, Matrix M)
+__device__ __host__ void getposition(int value, int rowindex, Matrix *M, Particle *particle_ret)
 {
     int num = 0;
-    char* row = M.matrix[rowindex];
-    Position p;
+    char* row = (*M).matrix[rowindex];
 
-    for (int i = 0; i < M.num_cols; i++)
+    for (int i = 0; i < (*M).num_cols; i++)
     {
         if (row[i] == value)
             num++;
     } 
 
     num = 0;
-    for (int i = 0; i < M.num_cols; i++)
+    for (int i = 0; i < (*M).num_cols; i++)
     {
         if (row[i] == value)
         {
-            p.col[num] = i;
+            (*particle_ret).pos.col[num] = i;
             num++;
         }
     } 
 
     
-    p.row = rowindex;
-    p.num_cols = num;
+    (*particle_ret).pos.row = rowindex;
+    (*particle_ret).pos.num_cols = num;
 
-    Particle output_particle;
-    output_particle.value = value;
-    output_particle.pos = p;
-    output_particle.best = p;
-    return output_particle;
+    (*particle_ret).value = value;
+    (*particle_ret).best = (*particle_ret).pos;
 }
 
-__device__ __host__ MostFrequent mostfrequent(Matrix M, int row_index, int rowLen) {
+__device__ __host__ MostFrequent mostfrequent(Matrix *M, int row_index, int rowLen) {
     int charToOccurences[256] = {0};
     for (int i = 0; i < rowLen; i++) {
-        charToOccurences[M.matrix[row_index][i]] += 1;
+        charToOccurences[(*M).matrix[row_index][i]] += 1;
     }
 
     int best_freq = 0;
@@ -259,73 +257,75 @@ __device__ __host__ MostFrequent mostfrequent(Matrix M, int row_index, int rowLe
     return mf;
 }
 
-__device__ __host__ Matrix fly_down(Particle p, Matrix M, int stride)
+__device__ __host__ void fly_down(Particle *p, Matrix *M, Matrix *matrix_ret, int stride, bool test)
 {
+    
     Matrix M_new;
-
-    M_new.num_rows = M.num_rows + stride;
-    M_new.num_cols = M.num_cols;
-
-    for (int i = 0; i < M.num_rows; i++)
+    
+    M_new.num_rows = (*M).num_rows + stride;
+    M_new.num_cols = (*M).num_cols;
+    
+    for (int i = 0; i < (*M).num_rows; i++)
     {
-        for (int j = 0; j < M.num_cols; j++)
+        for (int j = 0; j < (*M).num_cols; j++)
         {
-            M_new.matrix[i][j] = M.matrix[i][j];
+            M_new.matrix[i][j] = (*M).matrix[i][j];
         }
     }
-    for (int i = M.num_rows; i < M_new.num_rows; i++)
+    
+    for (int i = (*M).num_rows; i < M_new.num_rows; i++)
     {
-        for (int j = 0; j < M.num_cols; j++)
+        for (int j = 0; j < (*M).num_cols; j++)
         {
             M_new.matrix[i][j] = '#';;
         }
     }
-
-    for (int i = (M_new.num_rows - 1); i > (p.pos.row + stride - 1); i--)
+    
+    for (int i = (M_new.num_rows - 1); i > ((*p).pos.row + stride - 1); i--)
     {
         for (int j = 0; j < M_new.num_cols; j++)
         {
-            for (int k = 0; k < p.pos.num_cols; k++)
+            for (int k = 0; k < (*p).pos.num_cols; k++)
             {
-                if (j == p.pos.col[k])
+                if (j == (*p).pos.col[k])
                 {
                     M_new.matrix[i][j] = M_new.matrix[i - stride][j];
                 }
             }
         }
     }
-
-    for (int k = 0; k < p.pos.num_cols; k++)
+    
+    for (int k = 0; k < (*p).pos.num_cols; k++)
     {
+        
         for (int i = 0; i < stride; i++)
         {
-            M_new.matrix[p.pos.row + i][p.pos.col[k]] = '-';
+            M_new.matrix[(*p).pos.row + i][(*p).pos.col[k]] = '-';
+            
         }
     }
-
+    
     //printf("Before remove_missing_rows:\n");
     //pretty_print_matrix(M_new);
-
-    Matrix return_value = remove_missing_rows(M_new);
+    
+    remove_missing_rows(&M_new, matrix_ret);
 
     //printf("After remove_missing_rows:\n");
     //pretty_print_matrix(return_value);
-
-    return return_value;
 }
 
-__device__ char* column(Matrix M, int col_number) 
+__device__ char* column(Matrix *M, int col_number) 
 {
-    char* c = new char[M.num_rows];
+    char* c = new char[(*M).num_rows];
     
-    for (int i = 0; i < M.num_rows; i++)
+    for (int i = 0; i < (*M).num_rows; i++)
     {
-        c[i] = M.matrix[i][col_number];
+        c[i] = (*M).matrix[i][col_number];
     }
     return c;
 }
 
-__device__ __host__ bool aligned(Matrix M, int row_index, int num_cols) 
+__device__ __host__ bool aligned(Matrix *M, int row_index, int num_cols) 
 {
     char first_c = 0;//row[0];
     char first_empty_c = 0;
@@ -343,17 +343,17 @@ __device__ __host__ bool aligned(Matrix M, int row_index, int num_cols)
     }*/
 
     for (int i =0; i<num_cols; i++){
-        if (M.matrix[row_index][i] == '-' || M.matrix[row_index][i] == '#'){
+        if ((*M).matrix[row_index][i] == '-' || (*M).matrix[row_index][i] == '#'){
             if (first_empty_c == 0){
-                first_empty_c = M.matrix[row_index][i];
-            }else if(first_empty_c != M.matrix[row_index][i]){
+                first_empty_c = (*M).matrix[row_index][i];
+            }else if(first_empty_c != (*M).matrix[row_index][i]){
                 return false;
             }
         }else{
             if (first_c == 0){
-                first_c = M.matrix[row_index][i];
+                first_c = (*M).matrix[row_index][i];
             }else{
-                if (M.matrix[row_index][i] != first_c){
+                if ((*M).matrix[row_index][i] != first_c){
                     return false;
                 }
             }
@@ -367,23 +367,21 @@ __device__ __host__ bool aligned(Matrix M, int row_index, int num_cols)
     return true;
 }
 
-__device__ __host__ Swarm create_swarm(int index, Matrix M) 
+__device__ __host__ void create_swarm(int index, Matrix *M, Swarm *swarm_ret) 
 {
-    Swarm s;
-
     int num_p = 0;
-    char* row = M.matrix[index];
+    char* row = (*M).matrix[index];
     char current_c;
     bool flag = false;
 
-    for (int i = 0; i < M.num_cols; i++)
+    for (int i = 0; i < (*M).num_cols; i++)
     {
         current_c = row[i];
         if (current_c == '#')
             break;
         for (int j = 0; j < num_p; j++)
         {
-            if (s.swarm[j].value == current_c)
+            if ((*swarm_ret).swarm[j].value == current_c)
             {
                 flag = true;
                 break;
@@ -391,29 +389,29 @@ __device__ __host__ Swarm create_swarm(int index, Matrix M)
         }           
         if (!flag)
         {
-            s.swarm[num_p] = getposition(current_c, index, M);         
+            getposition(current_c, index, M, &((*swarm_ret).swarm[num_p]));         
             num_p++;
         }
         flag = false;
     }
 
-    s.num_particles = num_p;
-    return s;
+    (*swarm_ret).num_particles = num_p;
 }
 
 
-__device__ bool criteria2(Particle p, int threshold)
+__device__ bool criteria2(Particle *p, int threshold)
 {
-    return p.updated > threshold;
+    return (*p).updated > threshold;
 }
 
-__device__ bool criteria3(Particle p, int new_index, Matrix M)
+__device__ bool criteria3(Particle *p, int new_index, Matrix *M)
 {
-    Particle new_particle = getposition(p.value, new_index, M);
-    return p.pos.num_cols != new_particle.pos.num_cols;
+    Particle new_particle;
+    getposition((*p).value, new_index, M, &new_particle);
+    return (*p).pos.num_cols != new_particle.pos.num_cols;
 }
 
-__device__ bool stopcriteria(Particle p, int newindex, Matrix M, int threshold, bool debug) {
+__device__ bool stopcriteria(Particle *p, int newindex, Matrix *M, int threshold, bool debug) {
     
     bool c2 = criteria2(p, threshold);
     
@@ -428,12 +426,12 @@ __device__ bool stopcriteria(Particle p, int newindex, Matrix M, int threshold, 
     return (c2 && c3);
 }
 
-__device__ int skip_missing(/*char *array*/ Matrix M, int col, int length) {
+__device__ int skip_missing(/*char *array*/ Matrix *M, int col, int length) {
 
     int size = 0;
 
     for (int i = 0; i < length; i++){
-        char elem = M.matrix[i][col];
+        char elem = (*M).matrix[i][col];
         if (elem != '#'){
             size += 1;
         }
@@ -461,23 +459,23 @@ Matrix copyMatrix(Matrix M){
 }
 
 
-__device__ __host__ void print_swarm(Swarm s)
+__device__ __host__ void print_swarm(Swarm *s)
 {
-    for (int i = 0; i < s.num_particles; i++)
+    for (int i = 0; i < (*s).num_particles; i++)
     {
         printf("Particle %d:\n", i + 1);
-        printf("\tValue:   %c\n", s.swarm[i].value);
-        printf("\tRow:     %d\n", s.swarm[i].pos.row);
+        printf("\tValue:   %c\n", (*s).swarm[i].value);
+        printf("\tRow:     %d\n", (*s).swarm[i].pos.row);
         printf("\tColumns: [");
-        for (int j = 0; j < s.swarm[i].pos.num_cols; j++)
+        for (int j = 0; j < (*s).swarm[i].pos.num_cols; j++)
         {
-            if (j != s.swarm[i].pos.num_cols - 1)
+            if (j != (*s).swarm[i].pos.num_cols - 1)
             {   
-                printf("%d, ", s.swarm[i].pos.col[j]);
+                printf("%d, ", (*s).swarm[i].pos.col[j]);
             }
             else
             {
-                printf("%d]\n\n", s.swarm[i].pos.col[j]);
+                printf("%d]\n\n", (*s).swarm[i].pos.col[j]);
             }
         }
     }
@@ -542,6 +540,7 @@ GPU_Result find_best_result(GPU_Result *result_array, int size){
 
 
 Particle *row_alignment(int index, Matrix M){
+    
     char *row = M.matrix[index];
     int index_copy;
     Swarm swarm;
@@ -556,15 +555,15 @@ Particle *row_alignment(int index, Matrix M){
     Matrix *gpu_M;
     GPU_Result *gpu_result_array;
 
-    if (aligned(M, index, M.num_cols)){
+    if (aligned(&M, index, M.num_cols)){
         return NULL;
     }
-
-    swarm = create_swarm(index, M);
+    
+    create_swarm(index, &M, &swarm);
     g = swarm.swarm[0];
 
-    original_g_value = g_value = objective(M, index, index);
-
+    original_g_value = g_value = objective(&M, index, index);
+    
     gpu_swarm = transfer_swarm(swarm);
     gpu_M = transfer_M(M);
     gpu_result_array = create_result_array(swarm.num_particles);
@@ -576,10 +575,21 @@ Particle *row_alignment(int index, Matrix M){
         hipLaunchKernelGGL(MyKernel, dim3(swarm.num_particles/BLOCK_SIZE + 1), dim3(BLOCK_SIZE), 0, 0,
         gpu_M, gpu_swarm, index, gpu_result_array, g_value, swarm.num_particles);
     }
-
+    //if ( index==1){
+        
+    //        GPU_Result * test = (GPU_Result *)calloc(sizeof(GPU_Result), swarm.num_particles);
+     //       printf("VALUE: %d %d\n", hipMemcpy(test, gpu_result_array, sizeof(GPU_Result) *swarm.num_particles, hipMemcpyDeviceToHost), hipSuccess);
+     //       printf("globaly_optimal.pos.num_cols: %d, globaly_optimal.pos.row: %d globaly_optimal.value: %c\n", (test[0].g).pos.num_cols, (test[0].g).pos.row, (test[0].g).value);
+            
+     //       printf("Last Col: %d\n",(test[0].g).pos.col[2]);
+            //printf("globaly_optimal.pos.num_cols: %d, globaly_optimal.pos.row: %d globaly_optimal.value: %c\n", (test[1].g).pos.num_cols, (test[1].g).pos.row, (test[1].g).value);
+            //printf("Last Col: %d\n",(test[1].g).pos.col[2]);            
+       //     while(1){}
+    //}
     result_array = transfer_result_array(gpu_result_array, swarm.num_particles);
 
     best_result = find_best_result(result_array, swarm.num_particles);
+    
     //printf("g_value: %f, index: %d\n", best_result.g_value, index);
     if (best_result.g_value == original_g_value){
         return NULL;
@@ -587,24 +597,29 @@ Particle *row_alignment(int index, Matrix M){
 
     return_g = (Particle *) malloc(sizeof(Particle));
     memcpy(return_g, &(best_result.g), sizeof(Particle));
+    
     return return_g;
 }
 
 __global__ void MyKernel(Matrix *M_copy_p, Swarm *swarm, int index, GPU_Result *result_array, double g_value, int max_threads) {
-    //TODO Set thread index
-    int thread_index;
+    int thread_particle_index;
+    int thread_flydown_index;
     Particle g;
     int index_copy = index;
     Matrix M_copy = *M_copy_p;
     
-    thread_index = hipThreadIdx_x + (hipBlockIdx_x * BLOCK_SIZE);
-    Particle particle = swarm -> swarm[thread_index];
     
-    if (thread_index >= max_threads){
+    thread_particle_index = hipThreadIdx_x + (hipBlockIdx_x * BLOCK_SIZE);
+    thread_flydown_index = hipThreadIdx_y + (hipBlockIdx_y * BLOCK_SIZE);
+
+    Particle particle = swarm -> swarm[thread_particle_index];
+    
+    if (thread_particle_index >= max_threads){
         return;
     }
+    
 
-    particle.best_value = objective(M_copy, index, index_copy, true);
+    particle.best_value = objective(&M_copy, index, index_copy, thread_particle_index==1);
     
     int max_len = 0;
 
@@ -614,7 +629,7 @@ __global__ void MyKernel(Matrix *M_copy_p, Swarm *swarm, int index, GPU_Result *
 
     
             //int temp_len = skip_missing(column(M_copy, i), M_copy.num_rows);
-            int temp_len = skip_missing(M_copy, i, M_copy.num_rows);
+            int temp_len = skip_missing(&M_copy, i, M_copy.num_rows);
             
             if (temp_len > max_len){
                 max_len = temp_len;
@@ -627,20 +642,22 @@ __global__ void MyKernel(Matrix *M_copy_p, Swarm *swarm, int index, GPU_Result *
     int criteria_1 = max_len;
     //if (thread_index == 0){
     //    printf("index: %d, thread_index: %d, particle.value: %c\n", index, thread_index, particle.value);
-    //    print_swarm(*swarm);
+    //    print_swarm(swarm);
     //}
     
     //if (index == 3 && particle.value == 'b'){
     //    printf("criteria_1: %d, index: %d, index_copy: %d, particle: %c\n" ,criteria_1, index, index_copy, particle.value);
     //    pretty_print_matrix(M_copy);
     //}
-    while(index_copy < criteria_1-1 && !(stopcriteria(particle, index_copy, M_copy))){
+    while(index_copy < criteria_1-1 && !(stopcriteria(&particle, index_copy, &M_copy))){
         index_copy += 1;
         particle.updated += 1;
         
-        M_copy = fly_down(particle, M_copy);
-
-        double score = objective(M_copy, index);
+        fly_down(&particle, &M_copy, &M_copy);
+        
+        double score = objective(&M_copy, index);
+        //printf("Score: %f\n", score);
+        
         //if (index == 3 && particle.value == 'b'){
         //    printf("score: %f\n" , score);
         //    pretty_print_matrix(M_copy);
@@ -651,16 +668,22 @@ __global__ void MyKernel(Matrix *M_copy_p, Swarm *swarm, int index, GPU_Result *
         }
 
         if (score > g_value){
+            Particle temp;
             g_value = score;
             g.value = particle.value;
             g.updated = particle.updated;
             g.pos = particle.pos;
-            g.best = getposition(particle.value, index_copy, M_copy).pos;
+            getposition(particle.value, index_copy, &M_copy, &temp);
+            g.best = temp.pos;
             g.best_value = score;
+            
         }
+        
     }
-    result_array[thread_index].g_value = g_value;
-    result_array[thread_index].g = g;
+    
+    memcpy(&result_array[thread_particle_index].g_value, &g_value, sizeof(double));
+    memcpy(&result_array[thread_particle_index].g, &g, sizeof(Particle));
+            
 }
 
 Matrix nest_msa_main(Matrix M){
@@ -669,7 +692,7 @@ Matrix nest_msa_main(Matrix M){
         Particle *globaly_optimal = row_alignment(i, M);
 
         if (globaly_optimal != NULL){
-            M = fly_down(*globaly_optimal, M, globaly_optimal->best.row - globaly_optimal->pos.row);
+            fly_down(globaly_optimal, &M, &M, globaly_optimal->best.row - globaly_optimal->pos.row);
         }
     }
 
@@ -685,11 +708,11 @@ int main(){
     sequences[3] = "aabccdd";
     sequences[4] = "aabccc";
     Matrix M = create_peer_matrix(5, (char **)sequences);
-    //printf("Before:\n");
-    //pretty_print_matrix(M);
+    printf("Before:\n");
+    pretty_print_matrix(&M);
     Matrix final = nest_msa_main(M);
-    //printf("\nAfter:\n");
-    pretty_print_matrix(final);
+    printf("\nAfter:\n");
+    pretty_print_matrix(&final);
     return 0;
 }
 
