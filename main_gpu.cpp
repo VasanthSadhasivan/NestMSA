@@ -37,6 +37,6 @@ int main(int argc, char *argv[]) {
 
     int num_of_sequences = i;
     Matrix M = create_peer_matrix(num_of_sequences, (char **)sequences);
-    
+    printf("Calling nest_msa_main()\n");
     Matrix final = nest_msa_main(M);
 }

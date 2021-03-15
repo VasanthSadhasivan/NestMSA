@@ -4,7 +4,7 @@
 
 //#define MAX_COL 120
 #define MAX_COL 2
-#define MAX_ROW 3000
+#define MAX_ROW 4096
 
 
 

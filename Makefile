@@ -58,3 +58,6 @@ clean:
 	rm -f results.db
 	rm -f results.json
 	rm -f results.sysinfo.txt
+	rm -f nest_msa_gpu
+	rm -f nest_msa
+	rm -f nest_msa_nogpu
