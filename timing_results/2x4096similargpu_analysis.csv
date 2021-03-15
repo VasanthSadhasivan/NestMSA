@@ -1,0 +1,2 @@
+"Name","Calls","TotalDurationNs","AverageNs","Percentage"
+"MyKernel(Matrix*, Matrix*, Swarm*, int, GPU_Res**, double) [clone .kd]",1,273270973,273270973,100.0

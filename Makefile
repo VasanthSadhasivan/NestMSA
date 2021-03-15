@@ -16,10 +16,15 @@ OBJECTS_CPU = $(SOURCES_CPU:.cpp=.o)
 EXECUTABLE_GPU=./main_gpu
 EXECUTABLE_CPU=./main_cpu
 
+SEQ_FILE_NAME = 2x64random
+SEQ_FILE = ./timing/$(SEQ_FILE_NAME)
+
 .PHONY: test
 
 
-all: $(EXECUTABLE_GPU) $(EXECUTABLE_CPU) 
+all: $(EXECUTABLE_GPU) $(EXECUTABLE_CPU)
+	rm -f $(OBJECTS_GPU)
+	rm -f $(OBJECTS_CPU)
 
 CXXFLAGS =-Wall -pg
 CXX=$(HIPCC)
@@ -32,15 +37,15 @@ $(EXECUTABLE_CPU): $(OBJECTS_CPU)
 	$(HIPCC) $(OBJECTS_CPU) $(CXXFLAGS) -o $@
 
 test: $(EXECUTABLE_GPU) $(EXECUTABLE_CPU)
-	$(EXECUTABLE_CPU) seq.txt
-	gprof $(EXECUTABLE_CPU) gmon.out > timing_results/cpu_analysis.txt
+	$(EXECUTABLE_CPU) $(SEQ_FILE)
+	gprof $(EXECUTABLE_CPU) gmon.out > timing_results/$(SEQ_FILE_NAME)cpu_analysis.txt
 	rm -f gmon.out
-	/opt/rocm-4.0.0/bin/rocprof --stats $(EXECUTABLE_GPU) seq.txt
-	mv results.stats.csv timing_results/gpu_analysis.csv
+	/opt/rocm-4.0.0/bin/rocprof --stats $(EXECUTABLE_GPU) $(SEQ_FILE)
+	mv results.stats.csv timing_results/$(SEQ_FILE_NAME)gpu_analysis.csv
 	rm -f results.sys.info.txt
 	rm -f results.json
 	rm -f results.db
-	rm-f  results.csv
+	rm -f  results.csv
 
 setup: clean
 	export PATH=$PATH:/opt/rocm-4.0.0/bin/

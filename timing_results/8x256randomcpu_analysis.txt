@@ -1,0 +1,208 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls   s/call   s/call  name    
+ 34.18      0.70     0.70 23716568     0.00     0.00  mostfrequent(char*, int)
+ 21.48      1.14     0.44    48905     0.00     0.00  fly_down(Particle, Matrix, int)
+ 10.25      1.35     0.21 23665584     0.00     0.00  weight(char*, int, double, double, double)
+  9.28      1.54     0.19 77250694     0.00     0.00  std::_Rb_tree_iterator<std::pair<char const, int> > std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_emplace_hint_unique<std::piecewise_construct_t const&, std::tuple<char const&>, std::tuple<> >(std::_Rb_tree_const_iterator<std::pair<char const, int> >, std::piecewise_construct_t const&, std::tuple<char const&>&&, std::tuple<>&&)
+  9.28      1.73     0.19 77250694     0.00     0.00  std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_get_insert_hint_unique_pos(std::_Rb_tree_const_iterator<std::pair<char const, int> >, char const&)
+  8.30      1.90     0.17 23716568     0.00     0.00  std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_erase(std::_Rb_tree_node<std::pair<char const, int> >*)
+  4.88      2.00     0.10    50984     0.00     0.00  objective(Matrix, int, int)
+  1.95      2.04     0.04                             __clang_call_terminate
+  0.49      2.05     0.01      513     0.00     0.00  row_alignment(int, Matrix)
+  0.00      2.05     0.00      257     0.00     0.00  create_swarm(int, Matrix)
+  0.00      2.05     0.00        1     0.00     2.01  nest_msa_main(Matrix)
+  0.00      2.05     0.00        1     0.00     0.00  create_peer_matrix(int, char**)
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2020 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 2 byte(s) for 0.49% of 2.05 seconds
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]     98.0    0.00    2.01                 main [1]
+                0.00    2.01       1/1           nest_msa_main(Matrix) [2]
+                0.00    0.00       1/1           create_peer_matrix(int, char**) [19]
+-----------------------------------------------
+                0.00    2.01       1/1           main [1]
+[2]     98.0    0.00    2.01       1         nest_msa_main(Matrix) [2]
+                0.01    2.00     513/513         row_alignment(int, Matrix) [3]
+                0.00    0.00       1/48905       fly_down(Particle, Matrix, int) [7]
+-----------------------------------------------
+                0.01    2.00     513/513         nest_msa_main(Matrix) [2]
+[3]     98.0    0.01    2.00     513         row_alignment(int, Matrix) [3]
+                0.10    1.46   50984/50984       objective(Matrix, int, int) [4]
+                0.44    0.00   48904/48905       fly_down(Particle, Matrix, int) [7]
+                0.00    0.00     257/257         create_swarm(int, Matrix) [18]
+-----------------------------------------------
+                0.10    1.46   50984/50984       row_alignment(int, Matrix) [3]
+[4]     76.1    0.10    1.46   50984         objective(Matrix, int, int) [4]
+                0.21    1.25 23665584/23665584     weight(char*, int, double, double, double) [5]
+                0.00    0.00   50984/23716568     mostfrequent(char*, int) [6]
+-----------------------------------------------
+                0.21    1.25 23665584/23665584     objective(Matrix, int, int) [4]
+[5]     71.1    0.21    1.25 23665584         weight(char*, int, double, double, double) [5]
+                0.70    0.55 23665584/23716568     mostfrequent(char*, int) [6]
+-----------------------------------------------
+                0.00    0.00   50984/23716568     objective(Matrix, int, int) [4]
+                0.70    0.55 23665584/23716568     weight(char*, int, double, double, double) [5]
+[6]     61.0    0.70    0.55 23716568         mostfrequent(char*, int) [6]
+                0.19    0.19 77250694/77250694     std::_Rb_tree_iterator<std::pair<char const, int> > std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_emplace_hint_unique<std::piecewise_construct_t const&, std::tuple<char const&>, std::tuple<> >(std::_Rb_tree_const_iterator<std::pair<char const, int> >, std::piecewise_construct_t const&, std::tuple<char const&>&&, std::tuple<>&&) [8]
+                0.17    0.00 23716568/23716568     std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_erase(std::_Rb_tree_node<std::pair<char const, int> >*) [10]
+-----------------------------------------------
+                0.00    0.00       1/48905       nest_msa_main(Matrix) [2]
+                0.44    0.00   48904/48905       row_alignment(int, Matrix) [3]
+[7]     21.5    0.44    0.00   48905         fly_down(Particle, Matrix, int) [7]
+-----------------------------------------------
+                0.19    0.19 77250694/77250694     mostfrequent(char*, int) [6]
+[8]     18.5    0.19    0.19 77250694         std::_Rb_tree_iterator<std::pair<char const, int> > std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_emplace_hint_unique<std::piecewise_construct_t const&, std::tuple<char const&>, std::tuple<> >(std::_Rb_tree_const_iterator<std::pair<char const, int> >, std::piecewise_construct_t const&, std::tuple<char const&>&&, std::tuple<>&&) [8]
+                0.19    0.00 77250694/77250694     std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_get_insert_hint_unique_pos(std::_Rb_tree_const_iterator<std::pair<char const, int> >, char const&) [9]
+-----------------------------------------------
+                0.19    0.00 77250694/77250694     std::_Rb_tree_iterator<std::pair<char const, int> > std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_emplace_hint_unique<std::piecewise_construct_t const&, std::tuple<char const&>, std::tuple<> >(std::_Rb_tree_const_iterator<std::pair<char const, int> >, std::piecewise_construct_t const&, std::tuple<char const&>&&, std::tuple<>&&) [8]
+[9]      9.3    0.19    0.00 77250694         std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_get_insert_hint_unique_pos(std::_Rb_tree_const_iterator<std::pair<char const, int> >, char const&) [9]
+-----------------------------------------------
+                             77250694             std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_erase(std::_Rb_tree_node<std::pair<char const, int> >*) [10]
+                0.17    0.00 23716568/23716568     mostfrequent(char*, int) [6]
+[10]     8.3    0.17    0.00 23716568+77250694 std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_erase(std::_Rb_tree_node<std::pair<char const, int> >*) [10]
+                             77250694             std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_erase(std::_Rb_tree_node<std::pair<char const, int> >*) [10]
+-----------------------------------------------
+                                                 <spontaneous>
+[11]     2.0    0.04    0.00                 __clang_call_terminate [11]
+-----------------------------------------------
+                0.00    0.00     257/257         row_alignment(int, Matrix) [3]
+[18]     0.0    0.00    0.00     257         create_swarm(int, Matrix) [18]
+-----------------------------------------------
+                0.00    0.00       1/1           main [1]
+[19]     0.0    0.00    0.00       1         create_peer_matrix(int, char**) [19]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2020 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+  [18] create_swarm(int, Matrix) [19] create_peer_matrix(int, char**) [8] std::_Rb_tree_iterator<std::pair<char const, int> > std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_emplace_hint_unique<std::piecewise_construct_t const&, std::tuple<char const&>, std::tuple<> >(std::_Rb_tree_const_iterator<std::pair<char const, int> >, std::piecewise_construct_t const&, std::tuple<char const&>&&, std::tuple<>&&)
+   [6] mostfrequent(char*, int) [5] weight(char*, int, double, double, double) [9] std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_get_insert_hint_unique_pos(std::_Rb_tree_const_iterator<std::pair<char const, int> >, char const&)
+   [2] nest_msa_main(Matrix)   [7] fly_down(Particle, Matrix, int) [10] std::_Rb_tree<char, std::pair<char const, int>, std::_Select1st<std::pair<char const, int> >, std::less<char>, std::allocator<std::pair<char const, int> > >::_M_erase(std::_Rb_tree_node<std::pair<char const, int> >*)
+   [3] row_alignment(int, Matrix) [4] objective(Matrix, int, int) [11] __clang_call_terminate
