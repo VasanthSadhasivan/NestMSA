@@ -20,9 +20,9 @@ int main(int argc, char *argv[]) {
         return EXIT_FAILURE;
     }
 
-    char *sequences[120];
+    char *sequences[1024];
     int i = 0;
-    while (((read = getline(&line, &len, file)) != -1) && (i < 120)) {
+    while (((read = getline(&line, &len, file)) != -1) && (i < 1024)) {
         line[read-1] = '\0';
         sequences[i] = (char *)malloc(read);
         if (sequences[i] == NULL) {
@@ -39,5 +39,4 @@ int main(int argc, char *argv[]) {
     Matrix M = create_peer_matrix(num_of_sequences, (char **)sequences);
 
     Matrix final = nest_msa_main(M);
-    pretty_print_matrix(final);
 }
