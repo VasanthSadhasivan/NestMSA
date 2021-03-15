@@ -549,7 +549,6 @@ Particle *row_alignment(int index, Matrix M){
         //printf("criteria_1: %d, index: %d, index_copy: %d, particle: %c\n", criteria_1, index, index_copy, particle.value);
         //pretty_print_matrix(M_copy);
         //printf("\n");
-
         while(index_copy < criteria_1-1 && !(stopcriteria(particle, index_copy, M_copy))){
             index_copy += 1;
             particle.updated += 1;

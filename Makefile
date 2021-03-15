@@ -7,30 +7,54 @@ HIPCC=$(HIP_PATH)/bin/hipcc
 
 TARGET=hcc
 
-SOURCES = nest_msa_gpu.cpp main_gpu.cpp
-OBJECTS = $(SOURCES:.cpp=.o)
+SOURCES_GPU = nest_msa_gpu.cpp main_gpu.cpp 
+SOURCES_CPU = nest_msa.cpp main_nogpu.cpp
 
-EXECUTABLE=./nest_msa_gpu
+OBJECTS_GPU = $(SOURCES_GPU:.cpp=.o)
+OBJECTS_CPU = $(SOURCES_CPU:.cpp=.o)
+
+EXECUTABLE_GPU=./main_gpu
+EXECUTABLE_CPU=./main_cpu
 
 .PHONY: test
 
 
-all: $(EXECUTABLE) test
+all: $(EXECUTABLE_GPU) $(EXECUTABLE_CPU) 
 
-CXXFLAGS =-g
+CXXFLAGS =-Wall -pg
 CXX=$(HIPCC)
 
 
-$(EXECUTABLE): $(OBJECTS)
-	echo $(OBJECTS)
-	$(HIPCC) $(OBJECTS) -o $@
+$(EXECUTABLE_GPU): $(OBJECTS_GPU)
+	$(HIPCC) $(OBJECTS_GPU) $(CXXFLAGS) -o $@
 
+$(EXECUTABLE_CPU): $(OBJECTS_CPU)
+	$(HIPCC) $(OBJECTS_CPU) $(CXXFLAGS) -o $@
 
-test: $(EXECUTABLE)
-	$(EXECUTABLE)
+test: $(EXECUTABLE_GPU) $(EXECUTABLE_CPU)
+	$(EXECUTABLE_CPU) seq.txt
+	gprof $(EXECUTABLE_CPU) gmon.out > timing_results/cpu_analysis.txt
+	rm -f gmon.out
+	/opt/rocm-4.0.0/bin/rocprof --stats $(EXECUTABLE_GPU) seq.txt
+	mv results.stats.csv timing_results/gpu_analysis.csv
+	rm -f results.sys.info.txt
+	rm -f results.json
+	rm -f results.db
+	rm-f  results.csv
 
+setup: clean
+	export PATH=$PATH:/opt/rocm-4.0.0/bin/
 
 clean:
-	rm -f $(EXECUTABLE)
-	rm -f $(OBJECTS)
+	rm -f $(EXECUTABLE_GPU)
+	rm -f $(EXECUTABLE_CPU)
+	rm -f $(OBJECTS_GPU)
+	rm -f $(OBJECTS_CPU)
 	rm -f $(HIP_PATH)/src/*.o
+	rm -f gmon.out
+	rm -f timing_results/cpu_analysis.txt
+	rm -f timing_results/gpu_analysis.csv
+	rm -f results.csv
+	rm -f results.db
+	rm -f results.json
+	rm -f results.sysinfo.txt

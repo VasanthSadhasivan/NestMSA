@@ -39,5 +39,5 @@ int main(int argc, char *argv[]) {
     Matrix M = create_peer_matrix(num_of_sequences, (char **)sequences);
 
     Matrix final = nest_msa_main(M);
-    pretty_print_matrix(final);
+    //pretty_print_matrix(final);
 }
