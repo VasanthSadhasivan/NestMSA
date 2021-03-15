@@ -3,8 +3,8 @@
 #define BLOCK_SIZE 64
 
 //#define MAX_COL 120
-#define MAX_COL 100
-#define MAX_ROW 100
+#define MAX_COL 2
+#define MAX_ROW 8192
 
 
 
